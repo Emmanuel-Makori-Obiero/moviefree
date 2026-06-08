@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="output.css" />
+    <title>Moviefree - Stream Your Favorite Movies</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
+
+      * {
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        @apply bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950;
+      }
+      .glow-cyan {
+        box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+      }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.5s ease-out forwards;
+      }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(25px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .movie-card {
+        @apply animate-fade-in-up;
+      }
+      .movie-card:nth-child(1) {
+        animation-delay: 0.05s;
+      }
+      .movie-card:nth-child(2) {
+        animation-delay: 0.1s;
+      }
+      .movie-card:nth-child(3) {
+        animation-delay: 0.15s;
+      }
+      .movie-card:nth-child(4) {
+        animation-delay: 0.2s;
+      }
+      .movie-card:nth-child(5) {
+        animation-delay: 0.25s;
+      }
+      .movie-card:nth-child(6) {
+        animation-delay: 0.3s;
+      }
+    </style>
+  </head>
+  <body class="min-h-screen flex flex-col relative text-slate-100">
+    <header
+      class="border-b border-cyan-500/20 bg-gradient-to-b from-slate-900/95 to-slate-900/80 backdrop-blur-md shadow-lg glow-cyan"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+        <h1
+          id="header-title"
+          class="text-4xl md:text-5xl lg:text-6xl font-black tracking-wider bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent cursor-pointer select-none transition-transform duration-200 active:scale-95"
+        >
+          MOVIEFREE
+        </h1>
+      </div>
+    </header>
+
+    <section
+      class="border-b border-cyan-500/20 bg-gradient-to-b from-slate-900/50 to-transparent relative z-40"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <form id="search-form" class="flex gap-3 relative">
+          <div class="flex-1 relative group">
+            <input
+              id="search-input"
+              type="text"
+              placeholder="Search for movies..."
+              autocomplete="off"
+              class="w-full bg-slate-800/50 border border-cyan-500/30 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 transition-all duration-300 group-hover:border-cyan-500/50 group-hover:shadow-lg group-hover:shadow-cyan-500/20 rounded-full px-6 py-3 focus:outline-none"
+            />
+            <svg
+              class="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-400/60 w-5 h-5 pointer-events-none"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              ></path>
+            </svg>
+          </div>
+          <button
+            id="search-button"
+            type="submit"
+            class="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white font-bold px-8 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 disabled:opacity-50"
+          >
+            Search
+          </button>
+
+          <div
+            id="suggestions-dropdown"
+            class="absolute left-0 right-0 top-full mt-2 bg-slate-900/95 border border-cyan-500/30 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-md hidden z-50"
+          >
+            <div
+              id="suggestions-list"
+              class="max-h-80 overflow-y-auto divide-y divide-slate-800/60"
+            ></div>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
+      <p
+        id="status-message"
+        class="text-center text-slate-400 text-lg mb-8 min-h-6"
+      >
+        Loading featured movies...
+      </p>
+
+      <div
+        id="spinner-container"
+        class="hidden flex items-center justify-center min-h-96"
+      >
+        <div class="flex flex-col items-center gap-4">
+          <svg
+            class="w-12 h-12 animate-spin text-cyan-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <circle
+              class="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              stroke-width="4"
+            ></circle>
+            <path
+              class="opacity-75"
+              fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+            ></path>
+          </svg>
+          <p class="text-cyan-400 font-semibold">Loading content...</p>
+        </div>
+      </div>
+
+      <div
+        id="movie-grid"
+        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+      ></div>
+    </main>
+
+    <div
+      id="video-modal"
+      class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-2 md:p-4 backdrop-blur-md hidden animate-fade-in-up overflow-y-auto"
+    >
+      <div
+        class="relative w-full max-w-5xl bg-slate-900 border border-cyan-500/30 rounded-2xl overflow-hidden shadow-2xl shadow-cyan-500/20 my-auto"
+      >
+        <div
+          class="flex flex-col sm:flex-row gap-3 justify-between items-center p-4 border-b border-slate-800 bg-slate-950/50"
+        >
+          <h2
+            id="modal-movie-title"
+            class="text-white font-black text-lg md:text-2xl truncate max-w-full sm:max-w-[50%] bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent"
+          >
+            Loading Video...
+          </h2>
+
+          <div
+            class="flex items-center gap-2 bg-slate-950 px-2 py-1 rounded-full border border-slate-800"
+          >
+            <button
+              id="toggle-movie"
+              class="text-xs font-bold px-3 py-1.5 rounded-full transition-all text-white bg-cyan-500 shadow-md"
+            >
+              🎬 Full Movie
+            </button>
+            <button
+              id="toggle-trailer"
+              class="text-xs font-bold px-3 py-1.5 rounded-full transition-all text-slate-400 hover:text-white"
+            >
+              🔥 Trailer
+            </button>
+          </div>
+
+          <button
+            id="close-modal"
+            class="text-slate-400 hover:text-cyan-400 font-bold transition-colors bg-slate-800 hover:bg-slate-700/70 p-2 px-4 rounded-full text-xs md:text-sm"
+          >
+            ✕ Close
+          </button>
+        </div>
+
+        <div class="flex flex-col lg:flex-row">
+          <div
+            class="w-full lg:w-1/3 p-4 bg-slate-950/30 flex items-center justify-center border-b lg:border-b-0 lg:border-r border-slate-800/60"
+          >
+            <img
+              id="modal-movie-poster"
+              src=""
+              alt=""
+              class="w-48 sm:w-56 lg:w-full h-auto object-cover rounded-xl border border-slate-700/50 shadow-xl"
+            />
+          </div>
+
+          <div class="w-full lg:w-2/3 p-4 flex flex-col gap-4">
+            <div
+              id="server-selection-wrapper"
+              class="flex items-center gap-2 bg-slate-950/60 p-2 rounded-xl border border-slate-800"
+            >
+              <span
+                class="text-slate-400 text-xs font-semibold uppercase tracking-wider px-2"
+                >High-Uptime Servers:</span
+              >
+              <div
+                id="server-toggles-container"
+                class="flex flex-wrap gap-2"
+              ></div>
+            </div>
+
+            <div
+              class="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner relative"
+            >
+              <iframe
+                id="video-player"
+                src=""
+                class="w-full h-full border-0"
+                allowfullscreen
+                scrolling="no"
+              ></iframe>
+            </div>
+
+            <div class="flex flex-wrap items-center gap-3 text-xs md:text-sm">
+              <div
+                class="flex items-center gap-1 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3 py-1 text-cyan-300 font-bold"
+              >
+                <svg
+                  class="w-3.5 h-3.5 fill-amber-400 text-amber-400"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
+                  />
+                </svg>
+                <span id="modal-movie-rating">N/A</span>
+              </div>
+              <div
+                class="bg-slate-800 border border-slate-700 text-slate-300 rounded-full px-3 py-1 font-medium"
+              >
+                Released:
+                <span id="modal-movie-date" class="text-white">N/A</span>
+              </div>
+            </div>
+
+            <div
+              class="bg-slate-950/40 p-4 rounded-xl border border-slate-800/80"
+            >
+              <h4
+                class="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-1"
+              >
+                Overview
+              </h4>
+              <p
+                id="modal-movie-overview"
+                class="text-slate-300 text-sm leading-relaxed max-h-28 overflow-y-auto pr-2"
+              >
+                No description summary parameters tracked.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer
+      class="border-t border-cyan-500/20 bg-gradient-to-t from-slate-950 to-slate-900/50 backdrop-blur-md shadow-lg glow-cyan mt-auto"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
+        <p class="text-slate-300 mb-1">
+          Made by <span class="text-cyan-400 font-bold">Emmanuel</span>
+        </p>
+        <p class="text-slate-500 text-xs">
+          &copy; 2026
+          <span class="text-cyan-400 font-semibold">Moviefree</span>. All rights
+          reserved.
+        </p>
+      </div>
+    </footer>
+
+    <script src="index.js"></script>
+  </body>
+</html>
