@@ -1,300 +1,350 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="stylesheet" href="output.css" />
-    <title>Moviefree - Stream Your Favorite Movies</title>
+    <title>moviefree - Stream Movies & TV Shows</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap");
-
-      * {
-        font-family: "Inter", sans-serif;
+      /* Premium styling for sleek custom scrollbars across layout engines */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
       }
-      body {
-        @apply bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950;
+      ::-webkit-scrollbar-track {
+        background: #020617;
       }
-      .glow-cyan {
-        box-shadow: 0 0 20px rgba(34, 211, 238, 0.3);
+      ::-webkit-scrollbar-thumb {
+        background: #334155;
+        border-radius: 9999px;
       }
-      .animate-fade-in-up {
-        animation: fadeInUp 0.5s ease-out forwards;
-      }
-      @keyframes fadeInUp {
-        from {
-          opacity: 0;
-          transform: translateY(25px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .movie-card {
-        @apply animate-fade-in-up;
-      }
-      .movie-card:nth-child(1) {
-        animation-delay: 0.05s;
-      }
-      .movie-card:nth-child(2) {
-        animation-delay: 0.1s;
-      }
-      .movie-card:nth-child(3) {
-        animation-delay: 0.15s;
-      }
-      .movie-card:nth-child(4) {
-        animation-delay: 0.2s;
-      }
-      .movie-card:nth-child(5) {
-        animation-delay: 0.25s;
-      }
-      .movie-card:nth-child(6) {
-        animation-delay: 0.3s;
+      ::-webkit-scrollbar-thumb:hover {
+        background: #06b6d4;
       }
     </style>
   </head>
-  <body class="min-h-screen flex flex-col relative text-slate-100">
+  <body
+    class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200 antialiased flex flex-col justify-between"
+  >
     <header
-      class="border-b border-cyan-500/20 bg-gradient-to-b from-slate-900/95 to-slate-900/80 backdrop-blur-md shadow-lg glow-cyan"
+      class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 shadow-xl shadow-slate-950/20"
     >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-        <h1
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[5rem] flex flex-col lg:flex-row items-center justify-between gap-4 py-4 lg:py-0"
+      >
+        <div
           id="header-title"
-          class="text-4xl md:text-5xl lg:text-6xl font-black tracking-wider bg-gradient-to-r from-cyan-400 via-purple-400 to-cyan-400 bg-clip-text text-transparent cursor-pointer select-none transition-transform duration-200 active:scale-95"
+          class="flex items-center gap-2 cursor-pointer group select-none flex-shrink-0"
         >
-          MOVIEFREE
-        </h1>
-      </div>
-    </header>
-
-    <section
-      class="border-b border-cyan-500/20 bg-gradient-to-b from-slate-900/50 to-transparent relative z-40"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        <form id="search-form" class="flex gap-3 relative">
-          <div class="flex-1 relative group">
-            <input
-              id="search-input"
-              type="text"
-              placeholder="Search for movies..."
-              autocomplete="off"
-              class="w-full bg-slate-800/50 border border-cyan-500/30 text-white placeholder:text-slate-400 focus:border-cyan-400 focus:ring-2 focus:ring-cyan-400/50 transition-all duration-300 group-hover:border-cyan-500/50 group-hover:shadow-lg group-hover:shadow-cyan-500/20 rounded-full px-6 py-3 focus:outline-none"
-            />
+          <div
+            class="bg-gradient-to-tr from-cyan-600 to-blue-500 p-2 rounded-xl shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-all duration-300"
+          >
             <svg
-              class="absolute right-4 top-1/2 -translate-y-1/2 text-cyan-400/60 w-5 h-5 pointer-events-none"
+              class="w-6 h-6 text-white"
               fill="none"
               stroke="currentColor"
+              stroke-width="2.5"
               viewBox="0 0 24 24"
             >
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
-                stroke-width="2"
-                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-              ></path>
+                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+              />
             </svg>
           </div>
-          <button
-            id="search-button"
-            type="submit"
-            class="bg-gradient-to-r from-cyan-500 to-purple-500 hover:from-cyan-400 hover:to-purple-400 text-white font-bold px-8 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/50 hover:scale-105 active:scale-95 disabled:opacity-50"
+          <span
+            class="text-xl font-black bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent group-hover:from-cyan-400 group-hover:to-blue-400 transition-colors duration-300"
+            >movie<span
+              class="text-cyan-400 group-hover:text-white transition-colors"
+              >free</span
+            ></span
           >
-            Search
-          </button>
+        </div>
+
+        <div
+          class="relative w-full lg:max-w-4xl flex flex-col sm:flex-row gap-3 items-center flex-1 justify-end"
+        >
+          <select
+            id="genre-filter"
+            class="w-full sm:w-44 bg-slate-900 border border-slate-800 focus:border-cyan-500 text-sm rounded-xl py-3 px-3.5 text-white focus:outline-none transition-all duration-300 cursor-pointer shadow-inner shadow-black/40"
+          ></select>
+
+          <select
+            id="status-filter"
+            class="w-full sm:w-44 bg-slate-900 border border-slate-800 focus:border-cyan-500 text-sm rounded-xl py-3 px-3.5 text-white focus:outline-none transition-all duration-300 cursor-pointer shadow-inner shadow-black/40"
+          >
+            <option value="all">All Releases</option>
+            <option value="released">Available Now</option>
+            <option value="upcoming">Upcoming / Unreleased</option>
+          </select>
+
+          <form
+            id="search-form"
+            class="flex gap-2 w-full sm:max-w-xs md:max-w-sm flex-shrink-0"
+          >
+            <div class="relative w-full">
+              <input
+                id="search-input"
+                type="text"
+                autocomplete="off"
+                placeholder="Search movies or TV shows..."
+                class="w-full bg-slate-900 border border-slate-800 focus:border-cyan-500 text-sm rounded-xl py-3 pl-4 pr-10 text-white placeholder-slate-500 focus:outline-none transition-all duration-300 shadow-inner focus:shadow-cyan-500/5"
+              />
+              <div
+                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500"
+              >
+                <svg
+                  class="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                  />
+                </svg>
+              </div>
+            </div>
+            <button
+              id="search-button"
+              type="submit"
+              class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white text-sm font-bold px-5 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-cyan-600/10 flex-shrink-0"
+            >
+              Search
+            </button>
+          </form>
 
           <div
             id="suggestions-dropdown"
-            class="absolute left-0 right-0 top-full mt-2 bg-slate-900/95 border border-cyan-500/30 rounded-2xl shadow-2xl overflow-hidden backdrop-blur-md hidden z-50"
+            class="absolute left-0 right-0 lg:left-auto lg:w-[384px] top-[100%] mt-2 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl shadow-black overflow-hidden hidden z-50 divide-y divide-slate-800/60"
           >
             <div
               id="suggestions-list"
-              class="max-h-80 overflow-y-auto divide-y divide-slate-800/60"
+              class="max-h-[380px] overflow-y-auto"
             ></div>
           </div>
-        </form>
+        </div>
       </div>
-    </section>
+    </header>
 
-    <main class="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8">
-      <p
-        id="status-message"
-        class="text-center text-slate-400 text-lg mb-8 min-h-6"
+    <main
+      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full flex flex-col gap-6"
+    >
+      <div
+        class="flex items-center justify-between border-b border-slate-900 pb-4"
       >
-        Loading featured movies...
-      </p>
+        <h2
+          id="status-message"
+          class="text-sm font-black tracking-wider uppercase text-slate-400"
+        >
+          Loading Mirror Directories...
+        </h2>
+      </div>
 
       <div
         id="spinner-container"
-        class="hidden flex items-center justify-center min-h-96"
+        class="flex flex-col items-center justify-center py-20 gap-4 hidden"
       >
-        <div class="flex flex-col items-center gap-4">
-          <svg
-            class="w-12 h-12 animate-spin text-cyan-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <circle
-              class="opacity-25"
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              stroke-width="4"
-            ></circle>
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            ></path>
-          </svg>
-          <p class="text-cyan-400 font-semibold">Loading content...</p>
-        </div>
+        <div
+          class="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-lg"
+        ></div>
+        <p
+          class="text-xs font-bold text-slate-500 tracking-widest uppercase animate-pulse"
+        >
+          Synchronizing Data Blocks...
+        </p>
       </div>
 
       <div
         id="movie-grid"
-        class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"
       ></div>
     </main>
 
+    <footer class="w-full border-t border-slate-900 bg-slate-950/40 mt-auto">
+      <div
+        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex flex-col sm:flex-row items-center justify-between gap-2 py-4 sm:py-0 text-xs text-slate-500"
+      >
+        <p>&copy; 2026 moviefree. All rights reserved.</p>
+        <p class="font-medium flex items-center gap-1">
+          Made by
+          <span
+            class="text-slate-300 hover:text-cyan-400 transition-colors font-bold tracking-wide"
+            >Emmanuel</span
+          >
+        </p>
+      </div>
+    </footer>
+
     <div
       id="video-modal"
-      class="fixed inset-0 bg-slate-950/95 z-50 flex items-center justify-center p-2 md:p-4 backdrop-blur-md hidden animate-fade-in-up overflow-y-auto"
+      class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300"
     >
       <div
-        class="relative w-full max-w-5xl bg-slate-900 border border-cyan-500/30 rounded-2xl overflow-hidden shadow-2xl shadow-cyan-500/20 my-auto"
+        class="relative w-full max-w-6xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl shadow-cyan-500/5 overflow-hidden transform transition-all flex flex-col max-h-[90vh]"
       >
         <div
-          class="flex flex-col sm:flex-row gap-3 justify-between items-center p-4 border-b border-slate-800 bg-slate-950/50"
+          class="flex items-center justify-between p-4 border-b border-slate-800 bg-slate-950/50"
         >
-          <h2
-            id="modal-movie-title"
-            class="text-white font-black text-lg md:text-2xl truncate max-w-full sm:max-w-[50%] bg-gradient-to-r from-cyan-400 to-purple-400 bg-clip-text text-transparent"
-          >
-            Loading Video...
-          </h2>
-
-          <div
-            class="flex items-center gap-2 bg-slate-950 px-2 py-1 rounded-full border border-slate-800"
-          >
-            <button
-              id="toggle-movie"
-              class="text-xs font-bold px-3 py-1.5 rounded-full transition-all text-white bg-cyan-500 shadow-md"
+          <div class="flex items-center gap-3">
+            <h2
+              id="modal-movie-title"
+              class="text-lg md:text-xl font-extrabold text-white truncate max-w-[200px] sm:max-w-md"
             >
-              🎬 Full Movie
-            </button>
-            <button
-              id="toggle-trailer"
-              class="text-xs font-bold px-3 py-1.5 rounded-full transition-all text-slate-400 hover:text-white"
+              Loading Title...
+            </h2>
+            <span
+              id="modal-movie-date"
+              class="text-xs font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400 border border-slate-700"
+              >N/A</span
             >
-              🔥 Trailer
-            </button>
+            <span
+              id="modal-movie-rating"
+              class="text-xs font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20 flex items-center gap-1"
+              >N/A</span
+            >
           </div>
 
           <button
             id="close-modal"
-            class="text-slate-400 hover:text-cyan-400 font-bold transition-colors bg-slate-800 hover:bg-slate-700/70 p-2 px-4 rounded-full text-xs md:text-sm"
+            class="text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 p-2 rounded-xl transition-all duration-200"
           >
-            ✕ Close
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
 
-        <div class="flex flex-col lg:flex-row">
+        <div class="flex flex-col lg:flex-row flex-1 overflow-y-auto">
           <div
-            class="w-full lg:w-1/3 p-4 bg-slate-950/30 flex items-center justify-center border-b lg:border-b-0 lg:border-r border-slate-800/60"
+            class="w-full lg:w-[65%] bg-black flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-slate-800"
           >
-            <img
-              id="modal-movie-poster"
-              src=""
-              alt=""
-              class="w-48 sm:w-56 lg:w-full h-auto object-cover rounded-xl border border-slate-700/50 shadow-xl"
-            />
-          </div>
-
-          <div class="w-full lg:w-2/3 p-4 flex flex-col gap-4">
-            <div
-              id="server-selection-wrapper"
-              class="flex items-center gap-2 bg-slate-950/60 p-2 rounded-xl border border-slate-800"
-            >
-              <span
-                class="text-slate-400 text-xs font-semibold uppercase tracking-wider px-2"
-                >High-Uptime Servers:</span
-              >
-              <div
-                id="server-toggles-container"
-                class="flex flex-wrap gap-2"
-              ></div>
-            </div>
-
-            <div
-              class="aspect-video w-full bg-black rounded-xl overflow-hidden border border-slate-800 shadow-inner relative"
-            >
+            <div class="relative w-full aspect-video bg-slate-950 shadow-inner">
               <iframe
                 id="video-player"
                 src=""
-                class="w-full h-full border-0"
+                class="absolute inset-0 w-full h-full border-0"
                 allowfullscreen
-                scrolling="no"
+                allow="autoplay; encrypted-media"
               ></iframe>
             </div>
 
-            <div class="flex flex-wrap items-center gap-3 text-xs md:text-sm">
+            <div class="flex items-center justify-between p-4 bg-slate-950/40">
               <div
-                class="flex items-center gap-1 bg-cyan-500/10 border border-cyan-500/30 rounded-full px-3 py-1 text-cyan-300 font-bold"
+                class="flex bg-slate-900 border border-slate-800 p-1 rounded-xl"
               >
-                <svg
-                  class="w-3.5 h-3.5 fill-amber-400 text-amber-400"
-                  viewBox="0 0 24 24"
+                <button
+                  id="toggle-movie"
+                  class="text-xs font-bold px-4 py-2 rounded-lg transition-all text-white bg-cyan-500 shadow-md"
                 >
-                  <path
-                    d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
-                  />
-                </svg>
-                <span id="modal-movie-rating">N/A</span>
+                  Main Source
+                </button>
+                <button
+                  id="toggle-trailer"
+                  class="text-xs font-bold px-4 py-2 rounded-lg transition-all text-slate-400 hover:text-white bg-transparent"
+                >
+                  Trailer
+                </button>
               </div>
-              <div
-                class="bg-slate-800 border border-slate-700 text-slate-300 rounded-full px-3 py-1 font-medium"
+
+              <a
+                id="download-button"
+                target="_blank"
+                class="text-xs font-extrabold px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md shadow-emerald-600/20 flex items-center gap-1.5 cursor-pointer select-none"
+                title="Left click to download. Right click/Hold to change mirror if it times out."
               >
-                Released:
-                <span id="modal-movie-date" class="text-white">N/A</span>
+                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                </svg>
+                Download Source
+              </a>
+            </div>
+          </div>
+
+          <div
+            class="w-full lg:w-[35%] p-5 flex flex-col gap-5 bg-slate-900/40 overflow-y-auto"
+          >
+            <div
+              id="tv-controls-container"
+              class="hidden flex flex-col gap-3 p-4 bg-slate-950/60 border border-slate-800/80 rounded-xl"
+            >
+              <span
+                class="text-[10px] font-black tracking-wider text-purple-400 uppercase"
+                >TV Show Controller</span
+              >
+              <div class="grid grid-cols-2 gap-3">
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[11px] font-bold text-slate-400"
+                    >Season</label
+                  >
+                  <select
+                    id="season-select"
+                    class="w-full text-xs font-bold bg-slate-900 border border-slate-700 text-white p-2.5 rounded-lg focus:outline-none focus:border-cyan-500 transition-colors"
+                  ></select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label class="text-[11px] font-bold text-slate-400"
+                    >Episode</label
+                  >
+                  <select
+                    id="episode-select"
+                    class="w-full text-xs font-bold bg-slate-900 border border-slate-700 text-white p-2.5 rounded-lg focus:outline-none focus:border-cyan-500 transition-colors"
+                  ></select>
+                </div>
               </div>
             </div>
 
-            <div
-              class="bg-slate-950/40 p-4 rounded-xl border border-slate-800/80"
-            >
-              <h4
-                class="text-cyan-400 font-bold text-xs uppercase tracking-wider mb-1"
+            <div id="server-selection-wrapper" class="flex flex-col gap-2.5">
+              <span
+                class="text-[10px] font-black tracking-wider text-cyan-400 uppercase"
+                >Available Node Gateways</span
               >
-                Overview
-              </h4>
-              <p
-                id="modal-movie-overview"
-                class="text-slate-300 text-sm leading-relaxed max-h-28 overflow-y-auto pr-2"
-              >
-                No description summary parameters tracked.
-              </p>
+              <div
+                id="server-toggles-container"
+                class="grid grid-cols-1 sm:grid-cols-2 gap-2"
+              ></div>
+            </div>
+
+            <hr class="border-slate-800/80" />
+
+            <div class="flex gap-4 items-start">
+              <img
+                id="modal-movie-poster"
+                src=""
+                class="w-20 md:w-24 rounded-lg object-cover bg-slate-950 border border-slate-800 shadow-lg flex-shrink-0"
+                alt="Poster"
+              />
+              <div class="flex flex-col gap-1.5">
+                <span
+                  class="text-[10px] font-black tracking-wider text-slate-400 uppercase"
+                  >Story Synopsis</span
+                >
+                <p
+                  id="modal-movie-overview"
+                  class="text-xs text-slate-300 leading-relaxed max-h-[160px] overflow-y-auto pr-1"
+                >
+                  No summary description available.
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-
-    <footer
-      class="border-t border-cyan-500/20 bg-gradient-to-t from-slate-950 to-slate-900/50 backdrop-blur-md shadow-lg glow-cyan mt-auto"
-    >
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center">
-        <p class="text-slate-300 mb-1">
-          Made by <span class="text-cyan-400 font-bold">Emmanuel</span>
-        </p>
-        <p class="text-slate-500 text-xs">
-          &copy; 2026
-          <span class="text-cyan-400 font-semibold">Moviefree</span>. All rights
-          reserved.
-        </p>
-      </div>
-    </footer>
 
     <script src="index.js"></script>
   </body>
