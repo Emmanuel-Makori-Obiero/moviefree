@@ -9,47 +9,50 @@ const PLACEHOLDER =
 // Fixed Application Reference Point
 const CURRENT_DATE = new Date("2026-06-09");
 
-// RECONFIGURED STABLE BACKEND SERVER MATRIX (Streaming Player Proxies)
-const SERVERS = {
-  server1: { movie: "https://vidlink.pro/movie", tv: "https://vidlink.pro/tv" },
-  server2: {
-    movie: "https://vidsrc.to/embed/movie",
-    tv: "https://vidsrc.to/embed/tv",
-  },
-  server3: {
-    movie: "https://embed.su/embed/movie",
-    tv: "https://embed.su/embed/tv",
-  },
-  server4: {
-    movie: "https://vidsrc.cc/vidsrc/movie",
-    tv: "https://vidsrc.cc/vidsrc/tv",
-  },
-};
-
-// HIGH-AVAILABILITY ANTI-TIMEOUT DOWNLOAD MIRRORS (.pro, .xyz, .net extensions)
-const DOWNLOAD_MIRRORS = [
+// Verified streaming mirrors (player + external open button share the same URLs)
+const STREAM_MIRRORS = [
   {
-    name: "Mirror 1 (VidLink Cloud)",
+    id: "server1",
+    label: "VidLink (Fast)",
     movie: (id) => `https://vidlink.pro/movie/${id}`,
     tv: (id, s, e) => `https://vidlink.pro/tv/${id}/${s}/${e}`,
   },
   {
-    name: "Mirror 2 (VidSrc XYZ)",
-    movie: (id) => `https://vidsrc.xyz/embed/movie?tmdb=${id}`,
+    id: "server2",
+    label: "VidSrc Pro",
+    movie: (id) => `https://vidsrc.to/embed/movie/${id}`,
+    tv: (id, s, e) => `https://vidsrc.to/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server3",
+    label: "2Embed",
+    movie: (id) => `https://2embed.cc/embed/${id}`,
+    tv: (id, s, e) => `https://2embed.cc/embedtv/${id}&s=${s}&e=${e}`,
+  },
+  {
+    id: "server4",
+    label: "MultiEmbed",
+    movie: (id) => `https://multiembed.mov/?video_id=${id}&tmdb=1`,
     tv: (id, s, e) =>
-      `https://vidsrc.xyz/embed/tv?tmdb=${id}&sea=${s}&epi=${e}`,
-  },
-  {
-    name: "Mirror 3 (Embed SU Node)",
-    movie: (id) => `https://embed.su/embed/movie/${id}`,
-    tv: (id, s, e) => `https://embed.su/embed/tv/${id}/${s}/${e}`,
-  },
-  {
-    name: "Mirror 4 (VidSrc Net Pro)",
-    movie: (id) => `https://vidsrc.net/embed/movie/${id}`,
-    tv: (id, s, e) => `https://vidsrc.net/embed/tv/${id}/${s}/${e}`,
+      `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
 ];
+
+function getMirrorIndexById(mirrorId) {
+  const index = STREAM_MIRRORS.findIndex((mirror) => mirror.id === mirrorId);
+  return index === -1 ? 0 : index;
+}
+
+function getActiveMirror() {
+  return STREAM_MIRRORS[activeMirrorIndex] || STREAM_MIRRORS[0];
+}
+
+function buildStreamUrl(mirror, mediaType, mediaId, season, episode) {
+  if (!mirror || !mediaId) return "#";
+  return mediaType === "movie"
+    ? mirror.movie(mediaId)
+    : mirror.tv(mediaId, season, episode);
+}
 
 // Unified Cross-Media Mapping Table for Popular Genres
 const GENRES = [
@@ -233,12 +236,14 @@ function updatePlayerSource() {
     return;
   }
 
-  const baseEndpoint = SERVERS[currentServer][currentMediaType];
-  if (currentMediaType === "movie") {
-    videoPlayer.src = `${baseEndpoint}/${currentMediaId}`;
-  } else {
-    videoPlayer.src = `${baseEndpoint}/${currentMediaId}/${currentSeason}/${currentEpisode}`;
-  }
+  const mirror = STREAM_MIRRORS.find((entry) => entry.id === currentServer);
+  videoPlayer.src = buildStreamUrl(
+    mirror,
+    currentMediaType,
+    currentMediaId,
+    currentSeason,
+    currentEpisode,
+  );
 }
 
 function setMode(mode) {
@@ -259,76 +264,75 @@ function setMode(mode) {
   updatePlayerSource();
 }
 
-// Fallback cyclic rotation to clear connectivity timeouts
 function cycleDownloadMirror() {
-  activeMirrorIndex = (activeMirrorIndex + 1) % DOWNLOAD_MIRRORS.length;
-  updateDownloadButtonLink();
+  activeMirrorIndex = (activeMirrorIndex + 1) % STREAM_MIRRORS.length;
+  currentServer = getActiveMirror().id;
+  generateServerUI();
+  updatePlayerSource();
 }
 
 function updateDownloadButtonLink() {
-  const currentMirror = DOWNLOAD_MIRRORS[activeMirrorIndex];
-
-  if (currentMediaType === "movie") {
-    downloadButton.href = currentMirror.movie(currentMediaId);
-  } else {
-    downloadButton.href = currentMirror.tv(
-      currentMediaId,
-      currentSeason,
-      currentEpisode,
-    );
+  if (!currentMediaId) {
+    downloadButton.href = "#";
+    downloadButton.innerHTML = `
+      <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+      Open Mirror
+    `;
+    return;
   }
 
-  // Clean string matching label updates
-  const labelText = currentMirror.name.replace("Mirror ", "");
+  const mirror = getActiveMirror();
+  downloadButton.href = buildStreamUrl(
+    mirror,
+    currentMediaType,
+    currentMediaId,
+    currentSeason,
+    currentEpisode,
+  );
   downloadButton.innerHTML = `
-    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
-    Download (${labelText})
+    <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    Open Mirror (${mirror.label})
   `;
 }
 
 function generateServerUI() {
   serverTogglesContainer.innerHTML = "";
-  const serverNames = {
-    server1: "VidLink (Fast)",
-    server2: "VidSrc Pro",
-    server3: "Super Embed",
-    server4: "VidSrc CC",
-  };
+  activeMirrorIndex = getMirrorIndexById(currentServer);
 
-  Object.keys(SERVERS).forEach((key) => {
+  STREAM_MIRRORS.forEach((mirror) => {
     const btn = document.createElement("button");
-    btn.textContent = serverNames[key];
+    btn.textContent = mirror.label;
     btn.className =
-      key === currentServer
+      mirror.id === currentServer
         ? "text-xs font-bold px-3 py-2.5 rounded-xl bg-cyan-500 text-white transition-all shadow-md shadow-cyan-500/20"
         : "text-xs font-bold px-3 py-2.5 rounded-xl bg-slate-800 text-slate-400 hover:bg-slate-700/60 hover:text-white transition-all";
 
     btn.addEventListener("click", () => {
-      if (currentServer === key) return;
-      currentServer = key;
+      if (currentServer === mirror.id) return;
+      currentServer = mirror.id;
+      activeMirrorIndex = getMirrorIndexById(mirror.id);
       generateServerUI();
       updatePlayerSource();
     });
     serverTogglesContainer.appendChild(btn);
   });
 
+  const activeMirror = getActiveMirror();
   const externalBtn = document.createElement("a");
-  const baseEndpoint = SERVERS[currentServer][currentMediaType];
-
-  if (currentMediaType === "movie") {
-    externalBtn.href = `${baseEndpoint}/${currentMediaId}`;
-  } else {
-    externalBtn.href = `${baseEndpoint}/${currentMediaId}/${currentSeason}/${currentEpisode}`;
-  }
-
+  externalBtn.href = buildStreamUrl(
+    activeMirror,
+    currentMediaType,
+    currentMediaId,
+    currentSeason,
+    currentEpisode,
+  );
   externalBtn.target = "_blank";
+  externalBtn.rel = "noopener noreferrer";
   externalBtn.textContent = "Open Stream";
   externalBtn.className =
     "text-xs font-bold px-3 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white transition-all shadow-md shadow-purple-600/20 flex items-center justify-center gap-1 sm:col-span-2 mt-1";
   serverTogglesContainer.appendChild(externalBtn);
 
-  // Sync state loops to index zero on modal open sequences
-  activeMirrorIndex = 0;
   updateDownloadButtonLink();
 }
 
@@ -368,16 +372,16 @@ async function setupTvControls(tvId) {
     updatePlayerSource();
   }
 
-  seasonSelect.addEventListener("change", async (e) => {
+  seasonSelect.onchange = async (e) => {
     currentSeason = parseInt(e.target.value);
     await loadEpisodesForSeason(currentSeason);
-  });
+  };
 
-  episodeSelect.addEventListener("change", (e) => {
+  episodeSelect.onchange = (e) => {
     currentEpisode = parseInt(e.target.value);
     generateServerUI();
     updatePlayerSource();
-  });
+  };
 
   await loadEpisodesForSeason(currentSeason);
   tvControlsContainer.classList.remove("hidden");
@@ -392,6 +396,7 @@ async function playContentFromObject(item) {
   currentMediaId = item.id;
   currentMediaType = item.media_type || (item.title ? "movie" : "tv");
   currentServer = "server1";
+  activeMirrorIndex = 0;
   currentViewMode = "movie";
   currentSeason = 1;
   currentEpisode = 1;
@@ -439,7 +444,6 @@ function playContent(id, type) {
   playContentFromObject(item);
 }
 
-// Generate interactive autocomplete drops
 function renderSuggestions(items) {
   suggestionsList.innerHTML = "";
   if (!items.length) {
@@ -627,7 +631,6 @@ async function initApp() {
   }
 }
 
-// Runtime Execution Event Interceptors Assignment
 searchForm.addEventListener("submit", handleSearch);
 searchInput.addEventListener("input", handleInputAutocomplete);
 genreFilter.addEventListener("change", handleGenreChange);
@@ -637,13 +640,17 @@ closeModalBtn.addEventListener("click", closeModal);
 toggleMovieBtn.addEventListener("click", () => setMode("movie"));
 toggleTrailerBtn.addEventListener("click", () => setMode("trailer"));
 
-// Right-click context interceptor targets to swap mirror pathways dynamically if timeout triggers
+downloadButton.addEventListener("click", (e) => {
+  if (!currentMediaId || downloadButton.href === "#") {
+    e.preventDefault();
+  }
+});
+
 downloadButton.addEventListener("contextmenu", (e) => {
   e.preventDefault();
   cycleDownloadMirror();
 });
 
-// Mobile long-press or middle-click fallback interceptor maps
 downloadButton.addEventListener("auxclick", (e) => {
   if (e.button === 1) {
     e.preventDefault();

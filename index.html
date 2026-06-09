@@ -263,14 +263,24 @@
 
               <a
                 id="download-button"
+                href="#"
                 target="_blank"
+                rel="noopener noreferrer"
                 class="text-xs font-extrabold px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white transition-all shadow-md shadow-emerald-600/20 flex items-center gap-1.5 cursor-pointer select-none"
-                title="Left click to download. Right click/Hold to change mirror if it times out."
+                title="Left-click opens stream in a new tab. Right-click or middle-click switches mirror."
               >
-                <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24">
-                  <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" />
+                <svg
+                  class="w-4 h-4 fill-none stroke-current"
+                  stroke-width="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
                 </svg>
-                Download Source
+                Open Mirror
               </a>
             </div>
           </div>
