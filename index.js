@@ -532,6 +532,7 @@ const ICON = {
   ne: `<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 9l6-6M4 3h5v5"/></svg>`,
   next: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M3 12h17M14 6l6 6-6 6"/></svg>`,
   prev: `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M21 12H4M10 6l-6 6 6 6"/></svg>`,
+  watch: `<svg width="12" height="14" viewBox="0 0 56 64" fill="currentColor" aria-hidden="true"><path d="M2 2 55 32 2 62z"/></svg>`,
   plus: `<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><path d="M6 0v12M0 6h12"/></svg>`,
 };
 
@@ -573,6 +574,10 @@ function cardHTML(item, opts = {}) {
       ? `<button type="button" class="card-play" data-action="trailer" data-type="${typeOf(item)}" data-id="${item.id}" data-title="${esc(title)}" aria-label="Play trailer: ${esc(title)}">${ICON.play}</button>`
       : "";
   const year = yearOf(item);
+  const watch =
+    size !== "hero" && !checkIsUpcoming(item)
+      ? `<button type="button" class="card-watch" ${watchAttrs(item)} aria-label="Watch now: ${esc(title)}">${ICON.watch}</button>`
+      : "";
   return `
     <div class="card ${size ? "card--" + size : ""}">
       <a href="${hrefOf(item)}" data-link class="block" aria-label="${esc(title)}${year ? " (" + year + ")" : ""}">
@@ -583,8 +588,11 @@ function cardHTML(item, opts = {}) {
         </div>
         ${size === "hero" ? "" : `<div class="card-t">${esc(title)}${rating}</div>${sub}`}
       </a>
-      ${play}
+      ${play}${watch}
     </div>`;
+}
+function watchAttrs(item, extra = "") {
+  return `data-action="watch" data-type="${typeOf(item)}" data-id="${item.id}" data-title="${esc(titleOf(item))}"${extra}`;
 }
 
 function portraitHTML(person, sub) {
@@ -968,6 +976,297 @@ trailerModal.addEventListener("click", (e) => {
   if (e.target === trailerModal) closeTrailer();
 });
 
+/* ============================== PLAYER (Netflix-inspired, full screen) ==============================
+   Uses the same STREAM_MIRRORS as the legacy player (Server 1-4 = VidLink, VidSrc, 2Embed, MultiEmbed).
+   Sandbox results (headless Chrome, 2026-11-12, sandbox="allow-scripts allow-same-origin
+   allow-presentation allow-forms", then adding allow-modals / allow-popups / allow-popups-to-escape-sandbox /
+   allow-top-navigation(-by-user-activation), then every token at once):
+     VidLink    -> "Please Disable Sandbox" with every combination. Unsandboxed: plays (Fight Club).
+     VidSrc     -> redirects to vidsrc.sh/sandbox.php "can't be embedded in a sandboxed frame". Unsandboxed:
+                   player + a human-verification puzzle; tries to reach window.top (blocked by the browser).
+     2Embed     -> "Sandbox not allowed. Remove sandbox from the iframe to play." Unsandboxed: its inner
+                   host (vidsrc.buzz) answered 403 from the test machine.
+     MultiEmbed -> redirects to streamingnow.mov, which sends X-Frame-Options: SAMEORIGIN behind a
+                   Cloudflare challenge: refused to load with or without sandbox from the test machine.
+   So `sandbox` is per server: a string is applied as-is; null means the mirror refuses any sandbox and
+   is only loaded unsandboxed (chip marked "may show pop-ups"). The default server is the first one that
+   plays sandboxed; none does today, so it falls back to Server 1, the only one that played in tests.
+   A server the user picks is remembered. While the player is open a beforeunload guard makes the browser
+   ask before any frame can navigate this tab away. */
+const PLAYER_SANDBOX = "allow-scripts allow-same-origin allow-presentation allow-forms";
+const MIRROR_SANDBOX = { server1: null, server2: null, server3: null, server4: null }; // see results above
+const PLAYER_SERVERS = STREAM_MIRRORS.map((m, i) => ({
+  ...m,
+  name: `Server ${i + 1}`,
+  sandbox: m.id in MIRROR_SANDBOX ? MIRROR_SANDBOX[m.id] : PLAYER_SANDBOX,
+}));
+const SERVER_KEY = "moviefree:server";
+const PROGRESS_KEY = "moviefree:progress";
+const CHROME_IDLE_MS = 3000;
+const LOAD_SLOW_MS = 12000;
+
+const player = $("#player");
+const plStage = $("#pl-stage");
+const plLoading = $("#pl-loading");
+const plEps = $("#pl-eps");
+const plSeason = $("#pl-season");
+let plState = null;
+let plIdleTimer = null;
+let plSlowTimer = null;
+let plReturnFocus = null;
+let plIgnorePop = false;
+const coarsePointer = window.matchMedia("(pointer: coarse)");
+
+function serverIndex() {
+  const saved = PLAYER_SERVERS.findIndex((s) => s.id === store.get(SERVER_KEY, ""));
+  if (saved >= 0) return saved; // only ever set by the user picking a chip
+  const safe = PLAYER_SERVERS.findIndex((s) => s.sandbox);
+  return safe >= 0 ? safe : 0;
+}
+function plGuard(e) {
+  // Stops pop-under scripts in the mirror iframe from navigating the whole tab away silently.
+  e.preventDefault();
+  e.returnValue = "";
+}
+
+function renderServers() {
+  const box = $("#pl-servers");
+  box.innerHTML = PLAYER_SERVERS.map(
+    (s, i) =>
+      `<button type="button" class="pl-chip${s.sandbox ? "" : " is-open-frame"}" role="radio" aria-checked="${i === plState.server}" data-action="pl-server" data-i="${i}" title="${esc(s.label)}${s.sandbox ? " · sandboxed" : " · may show pop-ups"}">${esc(s.name)}${s.sandbox ? "" : `<span class="pl-chip-dot" aria-hidden="true"></span><span class="sr-only"> (may show pop-ups)</span>`}</button>`,
+  ).join("");
+  syncServerNote();
+}
+function syncServerNote() {
+  const srv = PLAYER_SERVERS[plState.server];
+  $("#pl-note").textContent = srv.sandbox
+    ? "If a server does not play, try another."
+    : "If a server does not play, try another. • May show pop-ups: this server refuses a sandboxed frame.";
+}
+
+function plHeading() {
+  $("#pl-title").textContent = plState.title;
+  const sub = $("#pl-sub");
+  if (plState.type === "tv") {
+    const ep = plState.episodes.find((e) => e.episode_number === plState.episode);
+    sub.textContent = `S${plState.season}:E${plState.episode}${ep && ep.name ? ` “${ep.name}”` : ""}`;
+  } else sub.textContent = plState.year || "";
+  document.title = `${plState.type === "tv" ? `${plState.title} S${plState.season}:E${plState.episode}` : plState.title} — Watch — MOVIEFREE`;
+}
+
+function loadSource() {
+  if (!plState) return;
+  const srv = PLAYER_SERVERS[plState.server];
+  const url = buildStreamUrl(srv, plState.type, plState.id, plState.season, plState.episode);
+  // A fresh iframe per source: sandbox flags only apply on creation/navigation, and it drops mirror history.
+  const f = document.createElement("iframe");
+  f.className = "pl-frame";
+  f.title = `${plState.title} — ${srv.name}`;
+  f.setAttribute("allow", "autoplay; fullscreen; encrypted-media; picture-in-picture");
+  f.setAttribute("referrerpolicy", "origin");
+  if (srv.sandbox) f.setAttribute("sandbox", srv.sandbox);
+  f.addEventListener("load", () => {
+    clearTimeout(plSlowTimer);
+    setTimeout(() => player.classList.remove("is-loading"), 350);
+  });
+  plStage.replaceChildren(f);
+  f.src = url;
+  player.classList.add("is-loading");
+  player.classList.remove("is-slow");
+  $("#pl-loading-text").textContent = `Loading ${srv.name}`;
+  clearTimeout(plSlowTimer);
+  plSlowTimer = setTimeout(() => {
+    player.classList.add("is-slow");
+    $("#pl-loading-text").textContent = `${srv.name} is slow. Try another server.`;
+  }, LOAD_SLOW_MS);
+  plHeading();
+  syncNext();
+  if (plState.type === "tv") {
+    const prog = store.get(PROGRESS_KEY, {});
+    prog[`tv:${plState.id}`] = { s: plState.season, e: plState.episode };
+    store.set(PROGRESS_KEY, prog);
+    $$(".pl-ep", plEps).forEach((li) => li.setAttribute("aria-current", String(Number(li.dataset.e) === plState.episode && Number(plSeason.value) === plState.season)));
+  }
+  wakeChrome();
+}
+
+function syncNext() {
+  const btn = $("#pl-next");
+  if (plState.type !== "tv") return (btn.hidden = true);
+  btn.hidden = !nextEpisode();
+}
+function nextEpisode() {
+  const { episodes, episode, season, seasons } = plState;
+  const i = episodes.findIndex((e) => e.episode_number === episode);
+  if (i >= 0 && i < episodes.length - 1) return { season, episode: episodes[i + 1].episode_number };
+  const si = seasons.findIndex((s) => s.season_number === season);
+  if (si >= 0 && si < seasons.length - 1) return { season: seasons[si + 1].season_number, episode: 1, newSeason: true };
+  return null;
+}
+
+async function loadSeason(season, { list = true } = {}) {
+  const s = await fetchSeasonDetails(plState.id, season);
+  const eps = (s && s.episodes) || [];
+  if (list) renderEpisodeList(season, eps);
+  return eps;
+}
+function renderEpisodeList(season, eps) {
+  plSeason.value = String(season);
+  $("#pl-eps-list").innerHTML = eps.length
+    ? eps
+        .map(
+          (ep) => `
+      <li class="pl-ep" data-e="${ep.episode_number}" aria-current="${season === plState.season && ep.episode_number === plState.episode}">
+        <button type="button" data-action="pl-ep" data-s="${season}" data-e="${ep.episode_number}">
+          <span class="pl-ep-n">${ep.episode_number}</span>
+          <span class="pl-ep-img"><img src="${ep.still_path ? img("w300", ep.still_path) : PLACEHOLDER}" alt="" loading="lazy" /><span class="pl-ep-play" aria-hidden="true">${ICON.playXs}</span></span>
+          <span class="pl-ep-txt">
+            <span class="pl-ep-t"><strong>${esc(ep.name || "Episode " + ep.episode_number)}</strong>${ep.runtime ? `<em>${esc(ep.runtime)}m</em>` : ""}</span>
+            <span class="pl-ep-o">${esc(truncate(ep.overview || "", 150))}</span>
+          </span>
+        </button>
+      </li>`,
+        )
+        .join("")
+    : `<li class="pl-ep-empty">Episode list unavailable.</li>`;
+}
+
+async function goEpisode(season, episode) {
+  if (season !== plState.season) {
+    plState.season = season;
+    plState.episodes = await loadSeason(season, { list: Number(plSeason.value) !== season });
+  }
+  plState.episode = episode;
+  loadSource();
+}
+
+async function openPlayer({ type, id, title, season, episode }, trigger) {
+  if (!id) return;
+  closeTrailer();
+  closeDrawers({ restoreFocus: false });
+  plReturnFocus = trigger || document.activeElement;
+  plState = { type, id: String(id), title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
+  const known = itemIndex.get(`${type}:${id}`) || itemIndex.get(`${type}:${Number(id)}`);
+  if (known) {
+    plState.title = plState.title || titleOf(known);
+    plState.year = yearOf(known);
+  }
+  player.classList.toggle("is-tv", type === "tv");
+  $("#pl-episodes-btn").hidden = type !== "tv";
+  plEps.hidden = true;
+  $("#pl-episodes-btn").setAttribute("aria-expanded", "false");
+  $("#pl-next").hidden = true;
+  renderServers();
+  player.classList.remove("hidden");
+  document.documentElement.style.overflow = "hidden";
+  requestAnimationFrame(() => player.classList.add("is-open"));
+  if (!history.state || !history.state.mfPlayer) history.pushState({ ...(history.state || {}), mfPlayer: 1 }, "", location.href);
+  window.addEventListener("beforeunload", plGuard);
+  $(".pl-back").focus({ preventScroll: true });
+  showRotateHint();
+
+  if (type === "tv") {
+    player.classList.add("is-loading");
+    $("#pl-loading-text").textContent = "Loading episodes";
+    const d = await fetchTvDetails(id);
+    if (!plState || plState.id !== String(id)) return;
+    plState.title = plState.title || (d && d.name) || "";
+    plState.seasons = ((d && d.seasons) || []).filter((s) => s.season_number > 0 && s.episode_count);
+    const prog = store.get(PROGRESS_KEY, {})[`tv:${id}`];
+    const first = plState.seasons[0] ? plState.seasons[0].season_number : 1;
+    plState.season = Number(season) || (prog && prog.s) || first;
+    plState.episode = Number(episode) || (prog && !season ? prog.e : 1) || 1;
+    plSeason.innerHTML = plState.seasons.map((s) => `<option value="${s.season_number}">Season ${s.season_number}</option>`).join("") || `<option value="1">Season 1</option>`;
+    plState.episodes = await loadSeason(plState.season);
+    if (!plState || plState.id !== String(id)) return;
+  }
+  loadSource();
+}
+
+function closePlayer({ fromPop = false } = {}) {
+  if (!plState) return;
+  plState = null;
+  clearTimeout(plIdleTimer);
+  clearTimeout(plSlowTimer);
+  window.removeEventListener("beforeunload", plGuard);
+  if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+  player.classList.remove("is-open", "is-idle", "is-loading", "is-slow");
+  plStage.replaceChildren();
+  setTimeout(() => !plState && player.classList.add("hidden"), 250);
+  if (!activeDrawer) document.documentElement.style.overflow = "";
+  const r = parseRoute();
+  if (r.name === "detail") {
+    const it = itemIndex.get(`${r.type}:${r.id}`) || itemIndex.get(`${r.type}:${Number(r.id)}`);
+    if (it) document.title = `${titleOf(it)} — MOVIEFREE`;
+    const prog = r.type === "tv" && store.get(PROGRESS_KEY, {})[`tv:${r.id}`];
+    const label = $(".hero-cta .cta-watch span");
+    if (prog && label) label.textContent = `Resume S${prog.s}:E${prog.e}`;
+  }
+  if (!fromPop && history.state && history.state.mfPlayer) {
+    plIgnorePop = true;
+    history.back();
+  }
+  if (plReturnFocus && document.contains(plReturnFocus)) plReturnFocus.focus({ preventScroll: true });
+}
+
+function toggleEpisodes(force) {
+  const open = typeof force === "boolean" ? force : plEps.hidden;
+  plEps.hidden = !open;
+  player.classList.toggle("eps-open", open);
+  $("#pl-episodes-btn").setAttribute("aria-expanded", String(open));
+  if (open) {
+    if (Number(plSeason.value) !== plState.season) renderEpisodeList(plState.season, plState.episodes);
+    const cur = $(".pl-ep[aria-current='true']", plEps);
+    if (cur) cur.scrollIntoView({ block: "center" });
+    plSeason.focus({ preventScroll: true });
+  }
+  wakeChrome();
+}
+
+function toggleFullscreen() {
+  if (document.fullscreenElement) return document.exitFullscreen().catch(() => {});
+  const req = player.requestFullscreen || player.webkitRequestFullscreen;
+  if (!req) return;
+  Promise.resolve(req.call(player))
+    .then(() => screen.orientation && screen.orientation.lock && screen.orientation.lock("landscape").catch(() => {}))
+    .catch(() => {});
+}
+document.addEventListener("fullscreenchange", () => {
+  $("#pl-fs-btn").setAttribute("aria-label", document.fullscreenElement ? "Exit full screen" : "Full screen");
+});
+
+// Chrome auto-hides after ~3s idle. The mirror iframe swallows mouse events, so edge "hot zones"
+// and the window blur that happens when you click into the video wake it too.
+function wakeChrome() {
+  if (!plState) return;
+  player.classList.remove("is-idle");
+  clearTimeout(plIdleTimer);
+  plIdleTimer = setTimeout(() => {
+    const ae = document.activeElement;
+    const keyboardInChrome = ae && ae.closest && ae.closest(".pl-chrome") && ae.matches(":focus-visible");
+    if (!plState || !plEps.hidden || player.querySelector(".pl-chrome:hover") || keyboardInChrome) return wakeChrome();
+    player.classList.add("is-idle");
+  }, CHROME_IDLE_MS);
+}
+player.addEventListener("mousemove", wakeChrome);
+player.addEventListener("touchstart", wakeChrome, { passive: true });
+player.addEventListener("keydown", wakeChrome);
+window.addEventListener("blur", () => plState && setTimeout(wakeChrome, 0));
+
+function showRotateHint() {
+  const hint = $("#pl-rotate");
+  hint.classList.remove("show");
+  if (!coarsePointer.matches || window.innerWidth > window.innerHeight === true) return;
+  void hint.offsetWidth;
+  hint.classList.add("show");
+}
+
+plSeason.addEventListener("change", async () => {
+  const s = Number(plSeason.value);
+  const eps = await loadSeason(s, { list: false });
+  if (plState) renderEpisodeList(s, eps);
+});
+
 /* ============================== ROUTER (query-string, client-side) ============================== */
 const app = $("#app");
 let routeToken = 0;
@@ -1007,6 +1306,7 @@ function render({ keepScroll = false } = {}) {
   closeDrawers({ restoreFocus: false });
   closeDropdown(true);
   closeTrailer();
+  if (plState) closePlayer({ fromPop: true });
   hideStickyNow();
   if (!keepScroll) window.scrollTo(0, 0);
   lastSampleY = window.scrollY;
@@ -1073,12 +1373,16 @@ async function viewHome(route, token) {
           <div class="hero-copy">
             <div class="hero-chipwrap"><span class="chip">${esc(heroChip(it))}</span></div>
             <h2 class="hero-title display"><a href="${hrefOf(it)}" data-link ${i === 0 ? "" : 'tabindex="-1"'}>${esc(titleOf(it))}</a></h2>
+            <div class="hero-cta">
+              ${checkIsUpcoming(it) ? "" : `<button type="button" class="cta-watch" ${watchAttrs(it)} ${i === 0 ? "" : 'tabindex="-1"'}>${ICON.watch}<span>Watch Now</span></button>`}
+              <button type="button" class="cta-line" data-action="trailer" data-type="${typeOf(it)}" data-id="${it.id}" data-title="${esc(titleOf(it))}" ${i === 0 ? "" : 'tabindex="-1"'}>Trailer</button>
+            </div>
           </div>
         </div>`,
         )
         .join("")}
       <div class="hero-actions">
-        <button type="button" class="hero-play" data-action="hero-trailer" aria-label="Play trailer">${ICON.play}</button>
+        <button type="button" class="hero-play" data-action="hero-play" aria-label="Watch now">${ICON.play}</button>
         <button type="button" class="hero-heart" data-action="hero-save" aria-label="Add to watchlist" aria-pressed="false">${ICON.heart}</button>
       </div>
       <div class="hero-dots" role="tablist" aria-label="Choose featured title">
@@ -1156,8 +1460,7 @@ function showHero(i, manual = false) {
     const on = k === heroState.i;
     s.classList.toggle("is-active", on);
     s.toggleAttribute("aria-hidden", !on);
-    const a = $(".hero-title a", s);
-    if (a) a.tabIndex = on ? 0 : -1;
+    $$(".hero-title a, .hero-cta button", s).forEach((a) => (a.tabIndex = on ? 0 : -1));
   });
   $$(".hero-dot").forEach((d, k) => {
     d.classList.toggle("is-active", k === heroState.i);
@@ -1171,7 +1474,7 @@ function syncHeroActions() {
   if (!it) return;
   const play = $(".hero-play");
   const heart = $(".hero-heart");
-  if (play) play.setAttribute("aria-label", `Play trailer: ${titleOf(it)}`);
+  if (play) play.setAttribute("aria-label", `${checkIsUpcoming(it) ? "Play trailer" : "Watch now"}: ${titleOf(it)}`);
   if (heart) {
     const saved = isSaved(typeOf(it), it.id);
     heart.classList.toggle("is-saved", saved);
@@ -1241,6 +1544,9 @@ async function viewDetail(route, token) {
   ].filter((r) => r[1]);
   const trailerAttrs = `data-action="trailer" data-type="${type}" data-id="${d.id}" data-title="${esc(title)}"`;
   const backdrop = d.backdrop_path;
+  const canWatch = !checkIsUpcoming(item);
+  const prog = type === "tv" ? store.get(PROGRESS_KEY, {})[`tv:${d.id}`] : null;
+  const watchLabel = prog ? `Resume S${prog.s}:E${prog.e}` : type === "tv" ? "Watch S1:E1" : "Watch Now";
 
   app.innerHTML = `
     <section class="hero on-dark" aria-label="${esc(title)}">
@@ -1251,10 +1557,14 @@ async function viewDetail(route, token) {
           <div class="hero-chipwrap"><span class="chip">${esc(chip)}</span></div>
           <h1 class="hero-title display">${esc(title)}</h1>
           ${d.tagline ? `<p class="mt-5 text-[13px] font-medium max-w-md opacity-90">${esc(d.tagline)}</p>` : ""}
+          <div class="hero-cta">
+            ${canWatch ? `<button type="button" class="cta-watch" ${watchAttrs(item)}>${ICON.watch}<span>${esc(watchLabel)}</span></button>` : ""}
+            ${trailer ? `<button type="button" class="cta-line" ${trailerAttrs}>Trailer</button>` : ""}
+          </div>
         </div>
       </div>
       <div class="hero-actions">
-        ${trailer ? `<button type="button" class="hero-play" ${trailerAttrs} aria-label="Play trailer: ${esc(title)}">${ICON.play}</button>` : ""}
+        ${canWatch ? `<button type="button" class="hero-play" ${watchAttrs(item)} aria-label="Watch now: ${esc(title)}">${ICON.play}</button>` : trailer ? `<button type="button" class="hero-play" ${trailerAttrs} aria-label="Play trailer: ${esc(title)}">${ICON.play}</button>` : ""}
         <button type="button" class="hero-heart ${saved ? "is-saved" : ""}" data-action="detail-save" aria-pressed="${saved}" aria-label="${saved ? "Remove from" : "Add to"} watchlist">${ICON.heart}</button>
       </div>
     </section>
@@ -1313,7 +1623,9 @@ async function loadEpisodes(tvId, seasonNum, token = routeToken) {
     .map(
       (ep) => `
       <article class="tv-ep">
-        <img src="${ep.still_path ? img("w300", ep.still_path) : PLACEHOLDER}" alt="" loading="lazy" />
+        <button type="button" class="tv-ep-play" data-action="watch" data-type="tv" data-id="${esc(tvId)}" data-season="${esc(seasonNum)}" data-episode="${esc(ep.episode_number)}" aria-label="Play episode ${esc(ep.episode_number)}: ${esc(ep.name || "")}">
+          <img src="${ep.still_path ? img("w300", ep.still_path) : PLACEHOLDER}" alt="" loading="lazy" /><span aria-hidden="true">${ICON.watch}</span>
+        </button>
         <div>
           <div class="dt-k">S${esc(seasonNum)} · E${esc(ep.episode_number)}${ep.air_date ? " — " + esc(fmtDate(ep.air_date)) : ""}${ep.runtime ? " · " + esc(ep.runtime) + " min" : ""}</div>
           <h3 class="text-[17px] font-bold uppercase leading-tight">${esc(ep.name || "Episode " + ep.episode_number)}</h3>
@@ -1706,6 +2018,38 @@ document.addEventListener("click", (e) => {
         return openTrailer(act.dataset.type, act.dataset.id, act.dataset.title, act);
       case "close-trailer":
         return closeTrailer();
+      case "watch":
+        e.preventDefault();
+        return openPlayer({ type: act.dataset.type, id: act.dataset.id, title: act.dataset.title, season: act.dataset.season, episode: act.dataset.episode }, act);
+      case "hero-play": {
+        const it = heroState.items[heroState.i];
+        if (!it) return;
+        if (checkIsUpcoming(it)) return openTrailer(typeOf(it), it.id, titleOf(it), act);
+        return openPlayer({ type: typeOf(it), id: it.id, title: titleOf(it) }, act);
+      }
+      case "close-player":
+        return closePlayer();
+      case "pl-server":
+        if (!plState) return;
+        plState.server = Number(act.dataset.i);
+        store.set(SERVER_KEY, PLAYER_SERVERS[plState.server].id);
+        $$(".pl-chip").forEach((c) => c.setAttribute("aria-checked", String(c === act)));
+        syncServerNote();
+        return loadSource();
+      case "pl-episodes":
+        return plState && toggleEpisodes();
+      case "pl-fullscreen":
+        return toggleFullscreen();
+      case "pl-next": {
+        const n = plState && nextEpisode();
+        if (n) goEpisode(n.season, n.episode);
+        return;
+      }
+      case "pl-ep":
+        if (!plState) return;
+        goEpisode(Number(act.dataset.s), Number(act.dataset.e));
+        if (window.innerWidth < 768) toggleEpisodes(false);
+        return;
       case "hero-trailer": {
         const it = heroState.items[heroState.i];
         if (it) openTrailer(typeOf(it), it.id, titleOf(it), act);
@@ -1790,6 +2134,7 @@ document.addEventListener("submit", (e) => {
 
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
+    if (plState) return plEps.hidden ? closePlayer() : toggleEpisodes(false);
     if (!videoModal.classList.contains("hidden")) return closeModal();
     if (!trailerModal.classList.contains("hidden")) return closeTrailer();
     if (activeDrawer) return closeDrawers();
@@ -1807,12 +2152,20 @@ document.addEventListener("keydown", (e) => {
     return;
   }
   if (e.key === "Tab") {
-    if (activeDrawer) trapFocus(e, activeDrawer);
+    if (plState) trapFocus(e, player);
+    else if (activeDrawer) trapFocus(e, activeDrawer);
     else if (!trailerModal.classList.contains("hidden")) trapFocus(e, trailerModal);
   }
 });
 
-window.addEventListener("popstate", () => render());
+window.addEventListener("popstate", () => {
+  if (plIgnorePop) {
+    plIgnorePop = false;
+    return;
+  }
+  if (plState) return closePlayer({ fromPop: true });
+  render();
+});
 
 let resizeRaf = null;
 window.addEventListener("resize", () => {
