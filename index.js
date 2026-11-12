@@ -568,7 +568,7 @@ function cardHTML(item, opts = {}) {
     : "";
   const rating = opts.rating && item.vote_average ? `<span class="rt" aria-label="TMDB score">${item.vote_average.toFixed(1)}</span>` : "";
   const sub = opts.sub ? `<div class="card-t-sub">${esc(opts.sub(item))}</div>` : "";
-  const bigTitle = size === "hero" ? `<div class="card-bigtitle display" aria-hidden="true">${esc(title)}</div>` : "";
+  const bigTitle = size === "hero" ? `<div class="card-bigtitle display">${esc(title)}</div>` : "";
   const play =
     size === "hero"
       ? `<button type="button" class="card-play" data-action="trailer" data-type="${typeOf(item)}" data-id="${item.id}" data-title="${esc(title)}" aria-label="Play trailer: ${esc(title)}">${ICON.play}</button>`
@@ -580,7 +580,7 @@ function cardHTML(item, opts = {}) {
       : "";
   return `
     <div class="card ${size ? "card--" + size : ""}">
-      <a href="${hrefOf(item)}" data-link class="block" aria-label="${esc(title)}${year ? " (" + year + ")" : ""}">
+      <a href="${hrefOf(item)}" data-link class="block">
         <div class="card-media">
           ${chip ? `<span class="card-chip">${esc(chip)}</span>` : ""}
           <img src="${src}" ${srcset} alt="" loading="lazy" decoding="async" />
@@ -590,6 +590,19 @@ function cardHTML(item, opts = {}) {
       </a>
       ${play}${watch}
     </div>`;
+}
+// Phones get w780 (Lighthouse mobile ~412px @1.75x); big screens w1280 / original.
+function heroSrcset(path) {
+  return `${img("w780", path)} 780w, ${img("w1280", path)} 1280w, ${img("original", path)} 1920w`;
+}
+let heroPreload = null;
+function preloadHero(path) {
+  if (heroPreload) heroPreload.remove();
+  heroPreload = Object.assign(document.createElement("link"), { rel: "preload", as: "image" });
+  heroPreload.setAttribute("imagesrcset", heroSrcset(path));
+  heroPreload.setAttribute("imagesizes", "100vw");
+  heroPreload.setAttribute("fetchpriority", "high");
+  document.head.appendChild(heroPreload);
 }
 function watchAttrs(item, extra = "") {
   return `data-action="watch" data-type="${typeOf(item)}" data-id="${item.id}" data-title="${esc(titleOf(item))}"${extra}`;
@@ -676,12 +689,14 @@ let hideTimer = null;
 function showSticky() {
   clearTimeout(hideTimer);
   stickyHeader.classList.add("is-shown");
+  document.documentElement.classList.add("hdr-shown");
   stickyHeader.removeAttribute("inert");
   stickyHeader.removeAttribute("aria-hidden");
 }
 function hideStickyNow() {
   clearTimeout(hideTimer);
   stickyHeader.classList.remove("is-shown");
+  document.documentElement.classList.remove("hdr-shown");
   stickyHeader.setAttribute("inert", "");
   stickyHeader.setAttribute("aria-hidden", "true");
 }
@@ -951,6 +966,7 @@ async function openTrailer(type, id, title, trigger) {
   $("#trailer-title").textContent = title ? `${title} — Trailer` : "Trailer";
   trailerModal.classList.remove("hidden");
   document.documentElement.style.overflow = "hidden";
+  document.documentElement.classList.add("modal-open");
   requestAnimationFrame(() => trailerModal.classList.add("is-open"));
   $(".tm-close", trailerModal).focus({ preventScroll: true });
   const key = await getTrailerKey(type, id);
@@ -969,6 +985,7 @@ function closeTrailer() {
   trailerFrame.removeAttribute("srcdoc");
   trailerFrame.src = "about:blank";
   setTimeout(() => trailerModal.classList.add("hidden"), 300);
+  if (!plState) document.documentElement.classList.remove("modal-open");
   if (!activeDrawer) document.documentElement.style.overflow = "";
   if (trailerReturnFocus && document.contains(trailerReturnFocus)) trailerReturnFocus.focus({ preventScroll: true });
 }
@@ -1159,6 +1176,7 @@ async function openPlayer({ type, id, title, season, episode }, trigger) {
   renderServers();
   player.classList.remove("hidden");
   document.documentElement.style.overflow = "hidden";
+  document.documentElement.classList.add("modal-open");
   requestAnimationFrame(() => player.classList.add("is-open"));
   if (!history.state || !history.state.mfPlayer) history.pushState({ ...(history.state || {}), mfPlayer: 1 }, "", location.href);
   window.addEventListener("beforeunload", plGuard);
@@ -1193,6 +1211,7 @@ function closePlayer({ fromPop = false } = {}) {
   player.classList.remove("is-open", "is-idle", "is-loading", "is-slow");
   plStage.replaceChildren();
   setTimeout(() => !plState && player.classList.add("hidden"), 250);
+  document.documentElement.classList.remove("modal-open");
   if (!activeDrawer) document.documentElement.style.overflow = "";
   const r = parseRoute();
   if (r.name === "detail") {
@@ -1331,6 +1350,12 @@ async function viewHome(route, token) {
     `<section class="sec"><div class="sec-head"><h2 class="sec-title display">${t}</h2></div><div class="row">${'<div class="card card--xl"><div class="card-media sk"></div></div>'.repeat(3)}</div></section>`;
   app.innerHTML = `<section class="hero sk" aria-label="Loading featured titles"></section>${["In Theaters", "Coming Soon", "Trending Now"].map(skRow).join("")}`;
 
+  getTrendingContent()
+    .then((t) => {
+      const first = t.filter((x) => x.media_type === "movie").slice(0, 4).find((x) => x.backdrop_path);
+      if (first && live(token)) preloadHero(first.backdrop_path);
+    })
+    .catch(() => {});
   const [trending, nowPlaying, upcoming, topRated, tvPopular] = await Promise.all([
     getTrendingContent(),
     tmdb("/movie/now_playing", { region: "US" }).then((d) => withType("movie")(d.results)).catch(() => []),
@@ -1368,7 +1393,7 @@ async function viewHome(route, token) {
         .map(
           (it, i) => `
         <div class="hero-slide ${i === 0 ? "is-active" : ""}" role="group" aria-roledescription="slide" aria-label="${i + 1} of ${heroItems.length}" ${i === 0 ? "" : 'aria-hidden="true"'}>
-          <img class="hero-img" src="${img("w1280", it.backdrop_path)}" srcset="${img("w1280", it.backdrop_path)} 1280w, ${img("original", it.backdrop_path)} 1920w" sizes="100vw" alt="" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />
+          <img class="hero-img" src="${img("w1280", it.backdrop_path)}" srcset="${heroSrcset(it.backdrop_path)}" sizes="100vw" alt="" ${i === 0 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" />
           <div class="hero-shade"></div>
           <div class="hero-copy">
             <div class="hero-chipwrap"><span class="chip">${esc(heroChip(it))}</span></div>
@@ -1551,7 +1576,7 @@ async function viewDetail(route, token) {
   app.innerHTML = `
     <section class="hero on-dark" aria-label="${esc(title)}">
       <div class="hero-slide is-active">
-        ${backdrop ? `<img class="hero-img" src="${img("w1280", backdrop)}" srcset="${img("w1280", backdrop)} 1280w, ${img("original", backdrop)} 1920w" sizes="100vw" alt="" fetchpriority="high" />` : ""}
+        ${backdrop ? `<img class="hero-img" src="${img("w1280", backdrop)}" srcset="${heroSrcset(backdrop)}" sizes="100vw" alt="" fetchpriority="high" />` : ""}
         <div class="hero-shade"></div>
         <div class="hero-copy">
           <div class="hero-chipwrap"><span class="chip">${esc(chip)}</span></div>
@@ -1877,7 +1902,7 @@ async function viewBrowse(route, token) {
 function filterBarHTML(route) {
   const n = (route.genre ? 1 : 0) + (route.status !== "all" ? 1 : 0);
   return `
-    <div class="mt-10" style="position:sticky;top:12px;z-index:30">
+    <div class="mt-10 filter-sticky">
       <button type="button" class="filterbar" data-action="filter-toggle" aria-expanded="false" aria-controls="filter-panel">
         <span>Filter${n ? ` (${n})` : ""}</span>${ICON.plus}
       </button>
