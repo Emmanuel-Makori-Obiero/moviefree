@@ -2368,6 +2368,13 @@
     flex-direction: column;
     justify-content: space-between;
   }
+  @media (max-width: 767px) {
+    .ft-box {
+      min-height: 0;
+      gap: 28px;
+      padding: 24px 20px;
+    }
+  }
   .ft-box h4 {
     font: 700 11px/1 var(--font-ui);
     text-transform: uppercase;

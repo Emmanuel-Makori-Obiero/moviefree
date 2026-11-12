@@ -428,6 +428,7 @@
   @media (max-width: 900px) { .ft-cols { grid-template-columns: 1fr 1fr; } }
   @media (max-width: 520px) { .ft-cols { grid-template-columns: 1fr; } }
   .ft-box { border: 1px solid #dedede; border-radius: var(--radius); padding: 30px 24px 28px; min-height: 280px; display: flex; flex-direction: column; justify-content: space-between; }
+  @media (max-width: 767px) { .ft-box { min-height: 0; gap: 28px; padding: 24px 20px; } }
   .ft-box h4 { font: 700 11px/1 var(--font-ui); text-transform: uppercase; }
   .ft-box ul { font: 400 13px/1.55 var(--font-ui); }
   .ft-box a:hover { text-decoration: underline; text-underline-offset: 2px; }
