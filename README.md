@@ -22,4 +22,4 @@ npx @tailwindcss/cli -i ./input.css -o ./output.css
 
 ## Legacy streaming-mirror player
 
-Still in the code but not linked from the new design: the "LEGACY STREAM PLAYER" block near the top of `index.js` and the `#video-modal` markup at the bottom of `index.html`. It can be opened from the console with `window.moviefreeLegacyPlayer.open(item)`.
+Still in the code but not linked from the new design: the "LEGACY STREAM PLAYER" block near the top of `index.js` and the `#video-modal` markup at the bottom of `index.html`. It can be opened from the console with `window.moviefreeLegacyPlayer.open(item)`....
