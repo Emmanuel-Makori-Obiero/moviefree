@@ -1,188 +1,244 @@
 <!doctype html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>moviefree - Stream Movies & TV Shows</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <title>MOVIEFREE — Films, trailers and what's in theaters</title>
+    <meta name="description" content="MOVIEFREE: in theaters, coming soon, trending films and television. Catalogue data from TMDB." />
+    <meta name="theme-color" content="#000000" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://image.tmdb.org" />
+    <link rel="preconnect" href="https://api.themoviedb.org" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Crimson+Pro:ital,wght@0,400;0,500;1,400&family=Inter+Tight:wght@400;500;700&family=Montserrat:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap"
+    />
     <link rel="stylesheet" href="output.css" />
-    <style>
-      /* Premium styling for sleek custom scrollbars across layout engines */
-      ::-webkit-scrollbar {
-        width: 6px;
-        height: 6px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #020617;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 9999px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #06b6d4;
-      }
-    </style>
   </head>
-  <body
-    class="bg-slate-950 text-slate-100 font-sans min-h-screen selection:bg-cyan-500/30 selection:text-cyan-200 antialiased flex flex-col justify-between"
-  >
-    <header
-      class="sticky top-0 z-40 bg-slate-950/80 backdrop-blur-md border-b border-slate-900 shadow-xl shadow-slate-950/20"
-    >
-      <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 min-h-[5rem] flex flex-col lg:flex-row items-center justify-between gap-4 py-4 lg:py-0"
-      >
-        <div
-          id="header-title"
-          class="flex items-center gap-2 cursor-pointer group select-none flex-shrink-0"
-        >
-          <div
-            class="bg-gradient-to-tr from-cyan-600 to-blue-500 p-2 rounded-xl shadow-lg shadow-cyan-500/20 group-hover:scale-105 transition-all duration-300"
-          >
-            <svg
-              class="w-6 h-6 text-white"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2.5"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
-            </svg>
-          </div>
-          <span
-            class="text-xl font-black bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent group-hover:from-cyan-400 group-hover:to-blue-400 transition-colors duration-300"
-            >movie<span
-              class="text-cyan-400 group-hover:text-white transition-colors"
-              >free</span
-            ></span
-          >
-        </div>
+  <body>
+    <a href="#app" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-[100] focus:bg-black focus:text-white focus:px-4 focus:py-2">Skip to content</a>
 
-        <div
-          class="relative w-full lg:max-w-4xl flex flex-col sm:flex-row gap-3 items-center flex-1 justify-end"
-        >
-          <select
-            id="genre-filter"
-            class="w-full sm:w-44 bg-slate-900 border border-slate-800 focus:border-cyan-500 text-sm rounded-xl py-3 px-3.5 text-white focus:outline-none transition-all duration-300 cursor-pointer shadow-inner shadow-black/40"
-          ></select>
-
-          <select
-            id="status-filter"
-            class="w-full sm:w-44 bg-slate-900 border border-slate-800 focus:border-cyan-500 text-sm rounded-xl py-3 px-3.5 text-white focus:outline-none transition-all duration-300 cursor-pointer shadow-inner shadow-black/40"
-          >
-            <option value="all">All Releases</option>
-            <option value="released">Available Now</option>
-            <option value="upcoming">Upcoming / Unreleased</option>
-          </select>
-
-          <form
-            id="search-form"
-            class="flex gap-2 w-full sm:max-w-xs md:max-w-sm flex-shrink-0"
-          >
-            <div class="relative w-full">
-              <input
-                id="search-input"
-                type="text"
-                autocomplete="off"
-                placeholder="Search movies or TV shows..."
-                class="w-full bg-slate-900 border border-slate-800 focus:border-cyan-500 text-sm rounded-xl py-3 pl-4 pr-10 text-white placeholder-slate-500 focus:outline-none transition-all duration-300 shadow-inner focus:shadow-cyan-500/5"
-              />
-              <div
-                class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-slate-500"
-              >
-                <svg
-                  class="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2.5"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-            </div>
-            <button
-              id="search-button"
-              type="submit"
-              class="bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white text-sm font-bold px-5 py-3 rounded-xl transition-all duration-200 shadow-lg shadow-cyan-600/10 flex-shrink-0"
-            >
-              Search
+    <!-- ============ Criterion-style header (cloned into a sticky copy by index.js) ============ -->
+    <header id="site-header" class="hdr" data-variant="dark">
+      <a href="./" class="hdr-brand" data-link aria-label="MOVIEFREE home">
+        <svg class="hdr-mark" viewBox="0 0 64 64" aria-hidden="true"><path fill="currentColor" fill-rule="evenodd" d="M32 0a32 32 0 1 1 0 64a32 32 0 1 1 0-64z M15 45V19h6.5L32 33l10.5-14H49v26h-6.5V30.5L32 44.5 21.5 30.5V45z"/></svg>
+        <span class="hdr-word">MovieFree</span>
+      </a>
+      <div class="hdr-right">
+        <nav class="hdr-links" aria-label="Primary">
+          <a class="hdr-link" href="?browse=movies" data-link>Browse the Films</a>
+          <a class="hdr-link" href="?browse=trending" data-link><em>Trending</em></a>
+          <a class="hdr-link" href="?browse=upcoming" data-link>Coming Soon</a>
+          <a class="hdr-link" href="?browse=tv" data-link>Television</a>
+        </nav>
+        <div class="hdr-icons">
+          <button class="hdr-icon" type="button" data-action="search" aria-label="Search" aria-haspopup="dialog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6.75"/><path d="M15.5 15.5 21 21"/></svg>
+          </button>
+          <div class="relative">
+            <button class="hdr-icon" type="button" data-action="watchlist" aria-label="Watchlist" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3.75h12v16.5l-6-4.2-6 4.2z"/></svg>
+              <span class="hdr-badge hidden" data-watch-count></span>
             </button>
-          </form>
-
-          <div
-            id="suggestions-dropdown"
-            class="absolute left-0 right-0 lg:left-auto lg:w-[384px] top-[100%] mt-2 bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl shadow-black overflow-hidden hidden z-50 divide-y divide-slate-800/60"
-          >
-            <div
-              id="suggestions-list"
-              class="max-h-[380px] overflow-y-auto"
-            ></div>
           </div>
+          <div class="relative">
+            <button class="hdr-icon" type="button" data-action="account" aria-label="My MovieFree" aria-haspopup="true" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4.25"/><path d="M4 21c.6-4.4 3.9-7 8-7s7.4 2.6 8 7"/></svg>
+            </button>
+          </div>
+          <button class="hdr-icon" type="button" data-action="menu" aria-label="Menu" aria-haspopup="dialog" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+          </button>
         </div>
       </div>
     </header>
 
-    <main
-      class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full flex flex-col gap-6"
-    >
-      <div
-        class="flex items-center justify-between border-b border-slate-900 pb-4"
-      >
-        <h2
-          id="status-message"
-          class="text-sm font-black tracking-wider uppercase text-slate-400"
-        >
-          Loading Mirror Directories...
-        </h2>
+    <!-- ============ Drawers ============ -->
+    <div id="drawer-scrim" class="drawer-scrim hidden" aria-hidden="true"></div>
+
+    <aside id="menu-drawer" class="drawer drawer--menu hidden on-dark" role="dialog" aria-modal="true" aria-label="Menu">
+      <div class="drawer-top">
+        <button class="hdr-icon" type="button" data-action="search" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="10.5" cy="10.5" r="6.75"/><path d="M15.5 15.5 21 21"/></svg>
+        </button>
+        <a class="hdr-icon" href="?browse=watchlist" data-link aria-label="Watchlist">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><path d="M6 3.75h12v16.5l-6-4.2-6 4.2z"/></svg>
+        </a>
+        <a class="hdr-icon" href="?browse=recent" data-link aria-label="Recently viewed">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="8" r="4.25"/><path d="M4 21c.6-4.4 3.9-7 8-7s7.4 2.6 8 7"/></svg>
+        </a>
+        <button class="hdr-icon" type="button" data-action="close-drawer" aria-label="Close menu">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5l14 14M19 5 5 19"/></svg>
+        </button>
       </div>
+      <nav class="menu-body" aria-label="Site menu">
+        <div class="menu-sec">
+          <h2 class="menu-h">Browse the Films</h2>
+          <a class="menu-link" href="./" data-link>Home</a>
+          <a class="menu-link" href="?browse=movies" data-link>All Films</a>
+          <a class="menu-link" href="?browse=now-playing" data-link>In Theaters</a>
+          <a class="menu-link" href="?browse=upcoming" data-link>Coming Soon</a>
+          <a class="menu-link" href="?browse=top-rated" data-link>Top Rated</a>
+        </div>
+        <div class="menu-sec">
+          <h2 class="menu-h"><em>Trending</em></h2>
+          <a class="menu-link" href="?browse=trending" data-link>Trending Today</a>
+          <a class="menu-link" href="?browse=all&amp;status=released" data-link>Available Now</a>
+          <a class="menu-link" href="?browse=all&amp;status=upcoming" data-link>Upcoming / Unreleased</a>
+        </div>
+        <div class="menu-sec">
+          <h2 class="menu-h">Genres</h2>
+          <div id="menu-genres"></div>
+        </div>
+        <div class="menu-sec">
+          <h2 class="menu-h">Television</h2>
+          <a class="menu-link" href="?browse=tv" data-link>Popular Series</a>
+          <a class="menu-link" href="?browse=tv-top" data-link>Top Rated Series</a>
+        </div>
+        <div class="menu-sec menu-small">
+          <a class="menu-link" href="?browse=watchlist" data-link>My Watchlist</a>
+          <a class="menu-link" href="?browse=recent" data-link>Recently Viewed</a>
+          <a class="menu-link" href="https://www.themoviedb.org/" target="_blank" rel="noopener">Data from TMDB</a>
+        </div>
+      </nav>
+    </aside>
 
-      <div
-        id="spinner-container"
-        class="flex flex-col items-center justify-center py-20 gap-4 hidden"
-      >
-        <div
-          class="w-12 h-12 border-4 border-slate-800 border-t-cyan-500 rounded-full animate-spin shadow-lg"
-        ></div>
-        <p
-          class="text-xs font-bold text-slate-500 tracking-widest uppercase animate-pulse"
-        >
-          Synchronizing Data Blocks...
-        </p>
+    <aside id="search-drawer" class="drawer drawer--search hidden" role="dialog" aria-modal="true" aria-label="Search">
+      <div class="search-close">
+        <button class="hdr-icon" type="button" data-action="close-drawer" aria-label="Close search" style="width:40px;height:40px">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M5 5l14 14M19 5 5 19"/></svg>
+        </button>
       </div>
+      <div class="search-body">
+        <form id="search-form" role="search" autocomplete="off" novalidate>
+          <label class="s-label" for="search-input">Search</label>
+          <div class="s-field">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.75"/><path d="M15.5 15.5 21 21"/></svg>
+            <input id="search-input" class="s-input" type="search" placeholder="Search" spellcheck="false"
+              role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="suggestions-list" />
+            <button id="search-button" class="s-submit" type="submit" aria-label="Show all results">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 12h17M14 6l6 6-6 6"/></svg>
+            </button>
+          </div>
+          <p class="s-hint">For television, browse the <a href="?browse=tv" data-link>TV Channel</a></p>
+        </form>
+        <div id="suggestions-dropdown" class="sugg" aria-live="polite">
+          <div id="suggestions-list" role="listbox" aria-label="Suggestions"></div>
+        </div>
+      </div>
+    </aside>
 
-      <div
-        id="movie-grid"
-        class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6"
-      ></div>
-    </main>
+    <!-- ============ App view (client-side routed by index.js) ============ -->
+    <main id="app" tabindex="-1"></main>
 
-    <footer class="w-full border-t border-slate-900 bg-slate-950/40 mt-auto">
-      <div
-        class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex flex-col sm:flex-row items-center justify-between gap-2 py-4 sm:py-0 text-xs text-slate-500"
-      >
-        <p>&copy; 2026 moviefree. All rights reserved.</p>
-        <p class="font-medium flex items-center gap-1">
-          Made by
-          <span
-            class="text-slate-300 hover:text-cyan-400 transition-colors font-bold tracking-wide"
-            >Emmanuel</span
-          >
-        </p>
+    <!-- ============ NEON-style footer ============ -->
+    <footer class="ft" id="site-footer">
+      <div class="ft-cols">
+        <div class="ft-box">
+          <h2 class="ft-h">Films</h2>
+          <ul>
+            <li><a href="?browse=movies" data-link>All</a></li>
+            <li><a href="?browse=now-playing" data-link>In Theaters</a></li>
+            <li><a href="?browse=upcoming" data-link>Coming Soon</a></li>
+            <li><a href="?browse=top-rated" data-link>Top Rated</a></li>
+            <li><a href="?browse=trending" data-link>Trending</a></li>
+          </ul>
+        </div>
+        <div class="ft-box">
+          <h2 class="ft-h">Television</h2>
+          <ul>
+            <li><a href="?browse=tv" data-link>Popular</a></li>
+            <li><a href="?browse=tv-top" data-link>Top Rated</a></li>
+          </ul>
+        </div>
+        <div class="ft-box">
+          <h2 class="ft-h">MovieFree</h2>
+          <ul>
+            <li><a href="./" data-link>Home</a></li>
+            <li><a href="?browse=watchlist" data-link>Watchlist</a></li>
+            <li><a href="?browse=recent" data-link>Recently Viewed</a></li>
+            <li><a href="?browse=all" data-link>Filter by Genre</a></li>
+          </ul>
+        </div>
+        <div class="ft-box ft-tmdb">
+          <a class="ft-tmdb-mark" href="https://www.themoviedb.org/" target="_blank" rel="noopener">TMDB<span>The Movie Database</span></a>
+          <p>This product uses the TMDB API but is not endorsed or certified by TMDB. All film and television data and images are provided by <a class="underline" href="https://www.themoviedb.org/" target="_blank" rel="noopener">The Movie Database (TMDB)</a>.</p>
+        </div>
+      </div>
+      <div class="ft-word" id="ft-word" aria-label="MOVIEFREE" role="img"></div>
+      <div class="ft-legal">
+        <span>Made by Emmanuel</span>
+        <span>MOVIEFREE &copy; <span id="ft-year">2026</span>. Data &amp; images: TMDB.</span>
       </div>
     </footer>
 
+    <!-- ============ NEON-style trailer modal ============ -->
+    <div id="trailer-modal" class="tm hidden on-dark" role="dialog" aria-modal="true" aria-label="Trailer">
+      <button class="tm-close" type="button" data-action="close-trailer" aria-label="Close trailer">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 5l14 14M19 5 5 19"/></svg>
+      </button>
+      <span class="tm-title" id="trailer-title"></span>
+      <div class="tm-frame"><iframe id="trailer-frame" title="Trailer" class="w-full h-full" allow="autoplay; encrypted-media; picture-in-picture; fullscreen"></iframe></div>
+    </div>
+
+    <!-- ============ Full-screen player (Netflix-inspired layout, NEON type). Logic: index.js "PLAYER". ============ -->
+    <div id="player" class="pl hidden" role="dialog" aria-modal="true" aria-labelledby="pl-title">
+      <div class="pl-stage" id="pl-stage"></div>
+      <div class="pl-loading" id="pl-loading" aria-live="polite"><span class="pl-spin" aria-hidden="true"></span><span id="pl-loading-text">Loading</span></div>
+      <div class="pl-hot pl-hot--top" aria-hidden="true"></div>
+      <div class="pl-hot pl-hot--l" aria-hidden="true"></div>
+      <div class="pl-hot pl-hot--r" aria-hidden="true"></div>
+      <div class="pl-top pl-chrome">
+        <button type="button" class="pl-back" data-action="close-player" aria-label="Back">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M21 12H4M10 5l-7 7 7 7"/></svg>
+        </button>
+        <div class="pl-heading">
+          <h2 class="pl-title" id="pl-title"></h2>
+          <span class="pl-sub" id="pl-sub"></span>
+        </div>
+        <div class="pl-tools">
+          <button type="button" class="pl-tool" data-action="pl-episodes" id="pl-episodes-btn" aria-expanded="false" aria-controls="pl-eps" hidden>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 5h13v10H3zM7 19h14V9"/></svg><span>Episodes</span>
+          </button>
+          <button type="button" class="pl-tool" data-action="pl-fullscreen" id="pl-fs-btn" aria-label="Full screen">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M3 9V3h6M21 9V3h-6M3 15v6h6M21 15v6h-6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="pl-bottom pl-chrome">
+        <div class="pl-servers-wrap">
+          <span class="pl-lbl" id="pl-servers-lbl">Servers</span>
+          <div class="pl-servers" id="pl-servers" role="radiogroup" aria-labelledby="pl-servers-lbl"></div>
+          <span class="pl-note" id="pl-note">If a server does not play, try another.</span>
+        </div>
+        <button type="button" class="pl-next" data-action="pl-next" id="pl-next" hidden>
+          <span>Next Episode</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M5 4l11 8-11 8zM18 4h2v16h-2z"/></svg>
+        </button>
+      </div>
+      <aside class="pl-eps" id="pl-eps" aria-label="Episodes" hidden>
+        <div class="pl-eps-head">
+          <h3>Episodes</h3>
+          <label class="pl-season"><span class="sr-only">Season</span><select id="pl-season"></select></label>
+          <button type="button" class="pl-eps-x" data-action="pl-episodes" aria-label="Close episodes">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M5 5l14 14M19 5 5 19"/></svg>
+          </button>
+        </div>
+        <ol class="pl-eps-list" id="pl-eps-list"></ol>
+      </aside>
+      <div class="pl-rotate" id="pl-rotate" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M2 14a8 8 0 0 0 6 6M22 10a8 8 0 0 0-6-6"/></svg>
+        Rotate for full screen
+      </div>
+    </div>
+
+    <!-- ============ LEGACY streaming-mirror player (kept functional, not featured in the redesign).
+         Logic lives in index.js under "LEGACY STREAM PLAYER". Open via window.moviefreeLegacyPlayer.open(item). ============ -->
     <div
       id="video-modal"
-      class="fixed inset-0 z-50 hidden overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300"
+      class="fixed inset-0 z-[95] hidden overflow-y-auto bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4 transition-all duration-300"
     >
       <div
         class="relative w-full max-w-6xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl shadow-cyan-500/5 overflow-hidden transform transition-all flex flex-col max-h-[90vh]"
