@@ -642,7 +642,6 @@
     .hero-dot.is-active { width: 44px; }
     .hero-dot.is-active::after { width: 22px; }
     .hero-dots { left: 0; right: 0; justify-content: center; }
-    .hero-dot { width: 36px; }
     .hero-actions { bottom: calc(58px + env(safe-area-inset-bottom)); }
     .hero-heart { width: 44px; height: 44px; }
   }
@@ -675,6 +674,91 @@
     .hdr-links { display: flex; gap: 18px; margin-right: 10px; }
     .hdr-link { font-size: 17px; }
     .hdr-word { display: none; }
+  }
+
+  /* ---------- Mobile inspection pass (360–430px) ---------- */
+  /* Display type: break only between words, balance lines; JS (fitDisplay) shrinks a title whose longest word would not fit. */
+  .display { overflow-wrap: normal; word-break: normal; hyphens: manual; text-wrap: balance; }
+  .hero-title, .card-bigtitle, .pg-title, .sec-title, .pl-title { max-width: 100%; }
+  .hero-title { max-width: min(13ch, 100%); }
+  .cta-watch, .cta-line, .btn-line, .btn-black, .sec-link, .pill, .pl-chip, .pl-next, .filterbar, .chip, .card-chip, .dd-btn { white-space: nowrap; }
+  .cta-watch, .cta-line { height: 44px; }
+  .btn-line { height: 44px; }
+  .card-watch { width: 44px; height: 44px; }
+  .hero-play { min-width: 44px; min-height: 44px; display: grid; place-items: center; }
+  .card-play { min-width: 44px; min-height: 44px; display: grid; place-items: center; }
+  .sec-link { display: inline-flex; align-items: center; min-height: 44px; padding-bottom: 0; border-bottom: 0; text-decoration: underline; text-underline-offset: 4px; text-decoration-thickness: 1px; }
+  .sr-viewall { min-height: 44px; }
+  .s-submit { min-width: 44px; min-height: 44px; display: inline-grid; place-items: center; }
+  .search-close .hdr-icon { width: 44px !important; height: 44px !important; }
+  .hdr-brand { min-width: 44px; justify-content: center; }
+  .nl-form button { min-width: 44px; min-height: 44px; display: grid; place-items: center; }
+  .nl-form input { min-height: 44px; min-width: 0; }
+  .pl-back, .pl-tool { min-width: 44px; min-height: 44px; justify-content: center; }
+  .pl-eps-x { width: 44px; height: 44px; }
+  .pl-season select { height: 44px; }
+  @media (max-width: 767px) {
+    .hero-chipwrap { margin-bottom: 18px; }
+    .hero-actions { bottom: calc(66px + env(safe-area-inset-bottom)); }
+    .hero-cta { gap: 8px; }
+    .cta-watch, .cta-line { padding: 0 18px; }
+    .sec-head { flex-wrap: wrap; row-gap: 4px; }
+    .sec-title { flex: 1 1 auto; min-width: 0; }
+    .card-bigtitle { right: 18px; }
+    .nl-word { font-size: clamp(26px, 8vw, 34px); }
+    .nl-word .ol { display: block; margin-right: 0; }
+    .nl-form input { font-size: clamp(18px, 5.4vw, 24px); }
+    .sr-post-h a { display: inline-block; padding: 10px 0; margin: -10px 0; }
+    .sr-post-v { display: inline-flex; align-items: center; min-height: 44px; margin-top: 2px; }
+    .card--hero .card-media { aspect-ratio: 4/3.4; }
+    .card-bigtitle { font-size: clamp(38px, 11.5vw, 56px); bottom: 74px; }
+    .card--hero .card-chip { left: 18px; top: 18px; right: 18px; white-space: normal; }
+    .pl-rotate { white-space: nowrap; }
+  }
+  @media (max-width: 479px) {
+    .sec-arrows { display: none; }
+    .sec-head { flex-wrap: nowrap; }
+  }
+
+  /* ---------- Hero layout v2: bottom-anchored stack (chip / title / actions), dots in their own row ---------- */
+  .hero { --dots-h: 44px; --hero-pad-b: calc(14px + env(safe-area-inset-bottom)); }
+  .hero-actions { display: none !important; }
+  .hero-copy {
+    position: absolute; transform: none !important;
+    top: calc(var(--hdr-h) + env(safe-area-inset-top) + 12px);
+    bottom: calc(var(--hero-pad-b) + var(--dots-h) + clamp(14px, 3vh, 28px));
+    left: max(var(--gutter), env(safe-area-inset-left)); right: max(var(--gutter), env(safe-area-inset-right));
+    display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start; gap: clamp(12px, 2vh, 20px);
+    pointer-events: none;
+  }
+  .hero-copy > * { pointer-events: auto; margin: 0 !important; }
+  .hero--detail .hero-copy { bottom: calc(var(--hero-pad-b) + clamp(20px, 5vh, 48px)); }
+  .hero-chipwrap { flex: none; }
+  .hero-title {
+    font-size: clamp(52px, 11vw, 176px); max-width: min(75%, 100%) !important; line-height: .9;
+    text-wrap: balance; overflow-wrap: normal; word-break: normal; hyphens: manual; flex: none;
+  }
+  .hero-title.ht-l { font-size: clamp(44px, 8vw, 132px); }
+  .hero-title.ht-xl { font-size: clamp(38px, 6.2vw, 104px); }
+  .hero-title.ht-xxl { font-size: clamp(32px, 5vw, 84px); }
+  .hero-tagline { font: 500 13px/1.35 var(--font-ui); max-width: 28rem; opacity: .9; flex: none; }
+  .hero-cta { flex: none; flex-wrap: nowrap; align-items: center; gap: 8px; }
+  .cta-save {
+    width: 44px; height: 44px; flex: none; border-radius: 50%; border: 1px solid rgba(255,255,255,.8); background: transparent; color: #fff;
+    display: grid; place-items: center; transition: background 200ms, color 200ms, transform 500ms var(--ease-spring);
+  }
+  .cta-save:hover { background: #fff; color: #000; }
+  .cta-save.is-saved path { fill: currentColor; }
+  .hero-dots { bottom: var(--hero-pad-b) !important; left: 50%; right: auto; transform: translateX(-50%); height: var(--dots-h); }
+  .hero-meta { display: none; }
+  @media (max-width: 767px) {
+    .hero-title, .hero-title.ht-l, .hero-title.ht-xl, .hero-title.ht-xxl { max-width: 100% !important; }
+    .hero-title { font-size: clamp(44px, 14vw, 64px); }
+    .hero-title.ht-l { font-size: clamp(38px, 11vw, 54px); }
+    .hero-title.ht-xl { font-size: clamp(32px, 9vw, 44px); }
+    .hero-title.ht-xxl { font-size: clamp(28px, 7.5vw, 38px); }
+    .hero-dots { left: 0; right: 0; transform: none; justify-content: center; }
+    .cta-watch, .cta-line { padding: 0 16px; }
   }
 
   .view-enter { animation: vin 700ms var(--ease-snappy) both; }

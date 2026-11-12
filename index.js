@@ -604,6 +604,24 @@ function preloadHero(path) {
   heroPreload.setAttribute("fetchpriority", "high");
   document.head.appendChild(heroPreload);
 }
+// Hero title size tier by length (chars): base, >18, >30, >45. fitDisplay() then guarantees <= 2 lines.
+function titleTier(t) {
+  const n = String(t || "").length;
+  return n > 45 ? "ht-xxl" : n > 30 ? "ht-xl" : n > 18 ? "ht-l" : "";
+}
+const HEART_SM = `<svg width="18" height="16" viewBox="0 0 66 58" fill="none" stroke="currentColor" stroke-width="4" aria-hidden="true"><path d="M33 56S1.5 37 1.5 17.5C1.5 8.5 8.6 1.5 17.4 1.5c6.6 0 12 3.8 15.6 9.8 3.6-6 9-9.8 15.6-9.8 8.8 0 15.9 7 15.9 16 0 19.5-31.5 38.5-31.5 38.5z"/></svg>`;
+function saveBtn(item, action, focusable) {
+  const on = isSaved(typeOf(item), item.id);
+  return `<button type="button" class="cta-save${on ? " is-saved" : ""}" data-action="${action}" data-type="${typeOf(item)}" data-id="${item.id}" aria-pressed="${on}" aria-label="${on ? "Remove from" : "Add to"} watchlist: ${esc(titleOf(item))}" ${focusable ? "" : 'tabindex="-1"'}>${HEART_SM}</button>`;
+}
+function syncSaveButtons() {
+  $$(".cta-save").forEach((b) => {
+    const on = isSaved(b.dataset.type, b.dataset.id);
+    b.classList.toggle("is-saved", on);
+    b.setAttribute("aria-pressed", String(on));
+    b.setAttribute("aria-label", b.getAttribute("aria-label").replace(/^(Add to|Remove from)/, on ? "Remove from" : "Add to"));
+  });
+}
 function watchAttrs(item, extra = "") {
   return `data-action="watch" data-type="${typeOf(item)}" data-id="${item.id}" data-title="${esc(titleOf(item))}"${extra}`;
 }
@@ -637,7 +655,40 @@ function rowSection(title, cardsHTML, { link, id, arrows = true } = {}) {
     </section>`;
 }
 
+// Shrink a display title until its longest word fits its box (no mid-word breaks, no overflow).
+// Hero titles also get at most 2 lines, and the whole hero copy (chip, title, tagline, actions)
+// must fit between the navbar and the dots row.
+function fitDisplay(root = document) {
+  $$(".hero-title, .card-bigtitle, .pg-title, .sec-title", root).forEach((el) => {
+    el.style.fontSize = "";
+    if (!el.clientWidth) return;
+    const isHero = el.classList.contains("hero-title");
+    const copy = isHero ? el.closest(".hero-copy") : null;
+    let size = parseFloat(getComputedStyle(el).fontSize);
+    const min = isHero ? 28 : 22;
+    const tooBig = () => {
+      if (el.scrollWidth > el.clientWidth + 1) return true;
+      if (!isHero) return false;
+      const lh = parseFloat(getComputedStyle(el).lineHeight) || size * 0.9;
+      if (el.offsetHeight > lh * 2 + 2) return true;
+      if (copy) {
+        const gap = parseFloat(getComputedStyle(copy).rowGap) || 0;
+        const kids = [...copy.children].filter((k) => k.offsetParent !== null);
+        const need = kids.reduce((h, k) => h + k.offsetHeight, 0) + gap * Math.max(0, kids.length - 1);
+        if (need > copy.clientHeight + 1) return true;
+      }
+      return false;
+    };
+    let guard = 0;
+    while (tooBig() && size > min && guard++ < 50) {
+      size = Math.max(min, size * 0.94);
+      el.style.fontSize = size + "px";
+    }
+  });
+}
 function wireRows(root) {
+  requestAnimationFrame(() => fitDisplay(root));
+  if (document.fonts && document.fonts.status !== "loaded") document.fonts.ready.then(() => fitDisplay(root));
   $$(".row", root).forEach((row) => {
     const update = () => {
       const prev = $(`[data-action="row-prev"][data-row="${row.id}"]`);
@@ -1335,10 +1386,12 @@ function render({ keepScroll = false } = {}) {
   void app.offsetWidth;
   app.classList.add("view-enter");
   const views = { home: viewHome, detail: viewDetail, person: viewPerson, search: viewSearch, browse: viewBrowse };
-  return views[route.name](route, token).catch((err) => {
-    if (token !== routeToken) return;
-    app.innerHTML = errorBlock(err && err.message ? err.message : "Please try again.");
-  });
+  return views[route.name](route, token)
+    .then(() => token === routeToken && requestAnimationFrame(() => fitDisplay(app)))
+    .catch((err) => {
+      if (token !== routeToken) return;
+      app.innerHTML = errorBlock(err && err.message ? err.message : "Please try again.");
+    });
 }
 
 const live = (token) => token === routeToken;
@@ -1378,7 +1431,7 @@ async function viewHome(route, token) {
   ];
   const heroItems = heroPool
     .filter((x, i, a) => x.backdrop_path && a.findIndex((y) => y.id === x.id && y.media_type === x.media_type) === i)
-    .slice(0, 10);
+    .slice(0, window.innerWidth < 768 ? 7 : 10); // 7 dots keep 44px tap targets on phones
   const ctx = { nowPlaying: nowSet };
   const heroChip = (it) => {
     if (checkIsUpcoming(it)) return chipFor(it, ctx);
@@ -1397,19 +1450,16 @@ async function viewHome(route, token) {
           <div class="hero-shade"></div>
           <div class="hero-copy">
             <div class="hero-chipwrap"><span class="chip">${esc(heroChip(it))}</span></div>
-            <h2 class="hero-title display"><a href="${hrefOf(it)}" data-link ${i === 0 ? "" : 'tabindex="-1"'}>${esc(titleOf(it))}</a></h2>
+            <h2 class="hero-title display ${titleTier(titleOf(it))}"><a href="${hrefOf(it)}" data-link ${i === 0 ? "" : 'tabindex="-1"'}>${esc(titleOf(it))}</a></h2>
             <div class="hero-cta">
               ${checkIsUpcoming(it) ? "" : `<button type="button" class="cta-watch" ${watchAttrs(it)} ${i === 0 ? "" : 'tabindex="-1"'}>${ICON.watch}<span>Watch Now</span></button>`}
               <button type="button" class="cta-line" data-action="trailer" data-type="${typeOf(it)}" data-id="${it.id}" data-title="${esc(titleOf(it))}" ${i === 0 ? "" : 'tabindex="-1"'}>Trailer</button>
+              ${saveBtn(it, "save-item", i === 0)}
             </div>
           </div>
         </div>`,
         )
         .join("")}
-      <div class="hero-actions">
-        <button type="button" class="hero-play" data-action="hero-play" aria-label="Watch now">${ICON.play}</button>
-        <button type="button" class="hero-heart" data-action="hero-save" aria-label="Add to watchlist" aria-pressed="false">${ICON.heart}</button>
-      </div>
       <div class="hero-dots" role="tablist" aria-label="Choose featured title">
         ${heroItems.map((it, i) => `<button type="button" role="tab" class="hero-dot ${i === 0 ? "is-active" : ""}" data-action="hero-dot" data-i="${i}" aria-label="Show ${esc(titleOf(it))}" aria-selected="${i === 0}"></button>`).join("")}
       </div>
@@ -1497,6 +1547,7 @@ function showHero(i, manual = false) {
 function syncHeroActions() {
   const it = heroState.items[heroState.i];
   if (!it) return;
+  syncSaveButtons();
   const play = $(".hero-play");
   const heart = $(".hero-heart");
   if (play) play.setAttribute("aria-label", `${checkIsUpcoming(it) ? "Play trailer" : "Watch now"}: ${titleOf(it)}`);
@@ -1574,23 +1625,20 @@ async function viewDetail(route, token) {
   const watchLabel = prog ? `Resume S${prog.s}:E${prog.e}` : type === "tv" ? "Watch S1:E1" : "Watch Now";
 
   app.innerHTML = `
-    <section class="hero on-dark" aria-label="${esc(title)}">
+    <section class="hero hero--detail on-dark" aria-label="${esc(title)}">
       <div class="hero-slide is-active">
         ${backdrop ? `<img class="hero-img" src="${img("w1280", backdrop)}" srcset="${heroSrcset(backdrop)}" sizes="100vw" alt="" fetchpriority="high" />` : ""}
         <div class="hero-shade"></div>
         <div class="hero-copy">
           <div class="hero-chipwrap"><span class="chip">${esc(chip)}</span></div>
-          <h1 class="hero-title display">${esc(title)}</h1>
-          ${d.tagline ? `<p class="mt-5 text-[13px] font-medium max-w-md opacity-90">${esc(d.tagline)}</p>` : ""}
+          <h1 class="hero-title display ${titleTier(title)}">${esc(title)}</h1>
+          ${d.tagline ? `<p class="hero-tagline">${esc(d.tagline)}</p>` : ""}
           <div class="hero-cta">
             ${canWatch ? `<button type="button" class="cta-watch" ${watchAttrs(item)}>${ICON.watch}<span>${esc(watchLabel)}</span></button>` : ""}
             ${trailer ? `<button type="button" class="cta-line" ${trailerAttrs}>Trailer</button>` : ""}
+            ${saveBtn(item, "detail-save", true)}
           </div>
         </div>
-      </div>
-      <div class="hero-actions">
-        ${canWatch ? `<button type="button" class="hero-play" ${watchAttrs(item)} aria-label="Watch now: ${esc(title)}">${ICON.play}</button>` : trailer ? `<button type="button" class="hero-play" ${trailerAttrs} aria-label="Play trailer: ${esc(title)}">${ICON.play}</button>` : ""}
-        <button type="button" class="hero-heart ${saved ? "is-saved" : ""}" data-action="detail-save" aria-pressed="${saved}" aria-label="${saved ? "Remove from" : "Add to"} watchlist">${ICON.heart}</button>
       </div>
     </section>
 
@@ -2080,6 +2128,11 @@ document.addEventListener("click", (e) => {
         if (it) openTrailer(typeOf(it), it.id, titleOf(it), act);
         return;
       }
+      case "save-item": {
+        const it = itemIndex.get(`${act.dataset.type}:${act.dataset.id}`) || itemIndex.get(`${act.dataset.type}:${Number(act.dataset.id)}`);
+        if (it) toggleSaved(it);
+        return syncSaveButtons();
+      }
       case "hero-save": {
         const it = heroState.items[heroState.i];
         if (it) toggleSaved(it);
@@ -2195,7 +2248,10 @@ window.addEventListener("popstate", () => {
 let resizeRaf = null;
 window.addEventListener("resize", () => {
   cancelAnimationFrame(resizeRaf);
-  resizeRaf = requestAnimationFrame(() => wireRows(app));
+  resizeRaf = requestAnimationFrame(() => {
+    wireRows(app);
+    fitDisplay(app);
+  });
 });
 
 /* ============================== INIT ============================== */
