@@ -1910,6 +1910,9 @@
   .card--hero {
     --w: calc((100vw - 2 * var(--gutter)) * .885);
   }
+  #row-soon .card--hero {
+    --w: calc((100vw - 2 * var(--gutter)) * .62);
+  }
   .card--sm {
     --w: calc((100vw - 2 * var(--gutter)) / 4.6);
   }
@@ -1922,6 +1925,9 @@
     }
     .card--hero {
       --w: 90vw;
+    }
+    #row-soon .card--hero {
+      --w: 74vw;
     }
     .card--sm {
       --w: 62vw;

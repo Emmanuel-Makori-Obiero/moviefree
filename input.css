@@ -329,11 +329,13 @@
   .card { position: relative; width: var(--w, calc((100vw - 2 * var(--gutter)) / 3.55)); display: block; color: #000; }
   .card--xl { --w: calc((100vw - 2 * var(--gutter)) * .48); }
   .card--hero { --w: calc((100vw - 2 * var(--gutter)) * .885); }
+  #row-soon .card--hero { --w: calc((100vw - 2 * var(--gutter)) * .62); }
   .card--sm { --w: calc((100vw - 2 * var(--gutter)) / 4.6); }
   @media (max-width: 767px) {
     .card { --w: 78vw; }
     .card--xl { --w: 86vw; }
     .card--hero { --w: 90vw; }
+    #row-soon .card--hero { --w: 74vw; }
     .card--sm { --w: 62vw; }
   }
   .card-media { position: relative; aspect-ratio: 16/9; border-radius: var(--radius); overflow: hidden; background: var(--color-grey); }
