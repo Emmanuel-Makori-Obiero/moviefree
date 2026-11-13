@@ -1473,9 +1473,9 @@ async function viewHome(route, token) {
 
     ${nowPlaying.length ? rowSection("In Theaters", nowPlaying.filter((m) => m.backdrop_path).map((m) => cardHTML(m, { size: "xl", chip: "In Theaters" })).join(""), { link: "?browse=now-playing", id: "row-theaters" }) : ""}
     ${soon.length ? rowSection("Coming Soon", soon.map((m) => cardHTML(m, { size: "hero" })).join(""), { link: "?browse=upcoming", id: "row-soon" }) : ""}
+    ${tvPopular.length ? rowSection("Series", tvPopular.filter((m) => m.backdrop_path).map((m) => cardHTML(m, { markTv: true })).join(""), { link: "?browse=tv", id: "row-series" }) : ""}
     ${rowSection("Trending Now", trending.filter((m) => m.backdrop_path).map((m) => cardHTML(m, { ...ctx, markTv: true })).join(""), { link: "?browse=trending", id: "row-trending" })}
     ${topRated.length ? rowSection("Top Rated", topRated.filter((m) => m.backdrop_path).map((m) => cardHTML(m, { rating: true, chip: false })).join(""), { link: "?browse=top-rated", id: "row-top" }) : ""}
-    ${tvPopular.length ? rowSection("Television", tvPopular.filter((m) => m.backdrop_path).map((m) => cardHTML(m, { chip: false, sub: (x) => [yearOf(x), firstGenre(x)].filter(Boolean).join(" · ") })).join(""), { link: "?browse=tv", id: "row-tv" }) : ""}
 
     <section class="sec" aria-label="Newsletter">
       <div class="nl">
