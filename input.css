@@ -486,6 +486,8 @@
   .pl-top > * { pointer-events: auto; }
   .pl-back, .pl-tool { color: #fff; background: none; border: 0; padding: 8px; display: inline-flex; align-items: center; gap: 8px; transition: transform 300ms var(--ease-spring), opacity 200ms; }
   .pl-back:hover, .pl-tool:hover { transform: scale(1.1); }
+  .pl-tool--episodes { padding: 10px 15px; border: 1px solid rgba(255,255,255,.75); border-radius: 999px; background: rgba(0,0,0,.72); box-shadow: 0 2px 14px rgba(0,0,0,.35); }
+  .pl-tool--episodes[aria-expanded="true"] { color: #111; border-color: #fff; background: #fff; }
   .pl-tool span { font: 700 11px/1 var(--font-ui); text-transform: uppercase; }
   .pl-heading { min-width: 0; flex: 1; display: flex; align-items: baseline; gap: 12px; pointer-events: none; }
   .pl-title { font: 400 clamp(22px, 2.4vw, 34px)/1 var(--font-display); text-transform: uppercase; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

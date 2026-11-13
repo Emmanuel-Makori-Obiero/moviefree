@@ -2608,6 +2608,18 @@
   .pl-back:hover, .pl-tool:hover {
     transform: scale(1.1);
   }
+  .pl-tool--episodes {
+    padding: 10px 15px;
+    border: 1px solid rgba(255,255,255,.75);
+    border-radius: 999px;
+    background: rgba(0,0,0,.72);
+    box-shadow: 0 2px 14px rgba(0,0,0,.35);
+  }
+  .pl-tool--episodes[aria-expanded="true"] {
+    color: #111;
+    border-color: #fff;
+    background: #fff;
+  }
   .pl-tool span {
     font: 700 11px/1 var(--font-ui);
     text-transform: uppercase;

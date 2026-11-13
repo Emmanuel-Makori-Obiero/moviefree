@@ -1221,8 +1221,13 @@ async function openPlayer({ type, id, title, season, episode }, trigger) {
   }
   player.classList.toggle("is-tv", type === "tv");
   $("#pl-episodes-btn").hidden = type !== "tv";
-  plEps.hidden = true;
-  $("#pl-episodes-btn").setAttribute("aria-expanded", "false");
+  plEps.hidden = type !== "tv";
+  player.classList.toggle("eps-open", type === "tv");
+  $("#pl-episodes-btn").setAttribute("aria-expanded", String(type === "tv"));
+  if (type === "tv") {
+    plSeason.innerHTML = `<option value="">Loading seasons…</option>`;
+    $("#pl-eps-list").innerHTML = `<li class="pl-ep-empty">Loading episodes…</li>`;
+  }
   $("#pl-next").hidden = true;
   renderServers();
   player.classList.remove("hidden");
