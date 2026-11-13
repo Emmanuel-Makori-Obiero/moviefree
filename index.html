@@ -208,10 +208,16 @@
         </div>
       </div>
       <div class="pl-bottom pl-chrome">
-        <div class="pl-servers-wrap">
-          <span class="pl-lbl" id="pl-servers-lbl">Servers</span>
-          <div class="pl-servers" id="pl-servers" role="radiogroup" aria-labelledby="pl-servers-lbl"></div>
-          <span class="pl-note" id="pl-note">If a server does not play, try another.</span>
+        <div class="pl-servers-wrap" id="pl-servers-wrap">
+          <button type="button" class="pl-server-toggle" data-action="pl-servers" id="pl-servers-btn" aria-expanded="false" aria-controls="pl-servers-panel">
+            <span class="pl-server-toggle-caption">Server</span>
+            <strong id="pl-server-current">Server 1</strong>
+            <svg class="pl-server-chevron" width="12" height="8" viewBox="0 0 12 8" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="m1 1 5 5 5-5"/></svg>
+          </button>
+          <div class="pl-servers-panel" id="pl-servers-panel" hidden>
+            <div class="pl-servers" id="pl-servers" role="radiogroup" aria-label="Choose a streaming server"></div>
+            <span class="pl-note" id="pl-note">If a server does not play, try another.</span>
+          </div>
         </div>
         <button type="button" class="pl-next" data-action="pl-next" id="pl-next" hidden>
           <span>Next Episode</span>

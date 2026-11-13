@@ -1107,9 +1107,18 @@ function renderServers() {
 }
 function syncServerNote() {
   const srv = PLAYER_SERVERS[plState.server];
+  $("#pl-server-current").textContent = srv.name;
   $("#pl-note").textContent = srv.sandbox
     ? "If a server does not play, try another."
     : "If a server does not play, try another. • May show pop-ups: this server refuses a sandboxed frame.";
+}
+
+function toggleServers(force) {
+  const panel = $("#pl-servers-panel");
+  const open = typeof force === "boolean" ? force : panel.hidden;
+  panel.hidden = !open;
+  $("#pl-servers-btn").setAttribute("aria-expanded", String(open));
+  wakeChrome();
 }
 
 function plHeading() {
@@ -1220,6 +1229,8 @@ async function openPlayer({ type, id, title, season, episode }, trigger) {
     plState.year = yearOf(known);
   }
   player.classList.toggle("is-tv", type === "tv");
+  $("#pl-servers-panel").hidden = true;
+  $("#pl-servers-btn").setAttribute("aria-expanded", "false");
   $("#pl-episodes-btn").hidden = type !== "tv";
   plEps.hidden = type !== "tv";
   player.classList.toggle("eps-open", type === "tv");
@@ -2113,7 +2124,10 @@ document.addEventListener("click", (e) => {
         store.set(SERVER_KEY, PLAYER_SERVERS[plState.server].id);
         $$(".pl-chip").forEach((c) => c.setAttribute("aria-checked", String(c === act)));
         syncServerNote();
+        toggleServers(false);
         return loadSource();
+      case "pl-servers":
+        return plState && toggleServers();
       case "pl-episodes":
         return plState && toggleEpisodes();
       case "pl-fullscreen":
