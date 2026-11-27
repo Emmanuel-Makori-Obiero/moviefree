@@ -264,10 +264,15 @@ function liveChannelUrl(channel) {
   const params = new URLSearchParams({
     channel: channel.youtubeChannelId,
     autoplay: "1",
+    mute: "1",
     playsinline: "1",
     rel: "0",
+    controls: "1",
   });
-  return `https://www.youtube.com/embed/live_stream?${params}`;
+  return `https://www.youtube-nocookie.com/embed/live_stream?${params}`;
+}
+function liveChannelPageUrl(channel) {
+  return `https://www.youtube.com/channel/${encodeURIComponent(channel.youtubeChannelId)}/live`;
 }
 
 // Legacy player state
@@ -1373,11 +1378,16 @@ function syncLiveFallback() {
   const box = $("#pl-live-fallback");
   if (!box) return;
   const link = $("#pl-live-fallback-link");
+  const youtubeLink = $("#pl-live-youtube-link");
   const isLive = Boolean(plState && plState.type === "live");
   box.hidden = !isLive;
   if (isLive && link) {
     link.href = plState.fallbackUrl || "#";
     link.hidden = !plState.fallbackUrl;
+  }
+  if (isLive && youtubeLink) {
+    youtubeLink.href = plState.youtubeUrl || "#";
+    youtubeLink.hidden = !plState.youtubeUrl;
   }
 }
 
@@ -1404,11 +1414,11 @@ function loadSource() {
   f.src = url;
   player.classList.add("is-loading");
   player.classList.remove("is-slow");
-  $("#pl-loading-text").textContent = `Loading ${srv ? srv.name : "Live TV"}`;
+  $("#pl-loading-text").textContent = srv ? `Loading ${srv.name}` : "Starting official live broadcast";
   clearTimeout(plSlowTimer);
   plSlowTimer = setTimeout(() => {
     player.classList.add("is-slow");
-    $("#pl-loading-text").textContent = `${srv ? srv.name : "Live TV"} is slow. Try another channel.`;
+    $("#pl-loading-text").textContent = srv ? `${srv.name} is slow. Try another channel.` : "The official live broadcast is unavailable. Use a link below to watch it directly.";
   }, LOAD_SLOW_MS);
   plHeading();
   syncLiveFallback();
@@ -1475,17 +1485,17 @@ async function goEpisode(season, episode) {
 function openLiveChannel(channel, trigger) {
   if (!channel) return;
   openPlayer(
-    { type: "live", id: channel.id, title: channel.name, liveUrl: liveChannelUrl(channel), fallbackUrl: channel.fallbackUrl },
+    { type: "live", id: channel.id, title: channel.name, liveUrl: liveChannelUrl(channel), fallbackUrl: channel.fallbackUrl, youtubeUrl: liveChannelPageUrl(channel) },
     trigger,
   );
 }
 
-async function openPlayer({ type, id, title, season, episode, liveUrl, fallbackUrl }, trigger) {
+async function openPlayer({ type, id, title, season, episode, liveUrl, fallbackUrl, youtubeUrl }, trigger) {
   if (!id) return;
   closeTrailer();
   closeDrawers({ restoreFocus: false });
   plReturnFocus = trigger || document.activeElement;
-  plState = { type, id: String(id), imdbId: "", liveUrl: liveUrl || "", fallbackUrl: fallbackUrl || "", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
+  plState = { type, id: String(id), imdbId: "", liveUrl: liveUrl || "", fallbackUrl: fallbackUrl || "", youtubeUrl: youtubeUrl || "", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
   const known = itemIndex.get(`${type}:${id}`) || itemIndex.get(`${type}:${Number(id)}`);
   if (known) {
     plState.title = plState.title || titleOf(known);
