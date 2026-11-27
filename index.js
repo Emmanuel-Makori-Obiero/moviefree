@@ -244,13 +244,20 @@ const GENRES = [
 
 // Official broadcaster channels with free YouTube live streams.
 const LIVE_CHANNELS = [
-  { id: "citizen-tv", name: "Citizen TV", source: "Official YouTube", youtubeChannelId: "UChBQgieUidXV1CmDxSdRm3g" },
-  { id: "ktn-news", name: "KTN News", source: "Official YouTube", youtubeChannelId: "UCKVsdeoHExltrWMuK0hOWmg" },
-  { id: "ntv-kenya", name: "NTV Kenya", source: "Official YouTube", youtubeChannelId: "UCqBJ47FjJcl61fmSbcadAVg" },
-  { id: "tv47-kenya", name: "TV47 Kenya", source: "Official YouTube", youtubeChannelId: "UC_zA9UIWE1fB-jfFk_DBSYw" },
-  { id: "kbc-channel-1", name: "KBC Channel 1", source: "Official YouTube", youtubeChannelId: "UCypNjM5hP1qcUqQZe57jNfg" },
-  { id: "k24-tv", name: "K24TV", source: "Official YouTube", youtubeChannelId: "UCt3SE-Mvs3WwP7UW-PiFdqQ" },
-  { id: "inooro-tv", name: "iNooro TV", source: "Official YouTube", youtubeChannelId: "UCZlNMLTVNxzwB0axilK-rDw" },
+  { id: "citizen-tv", name: "Citizen TV", source: "Official YouTube", youtubeChannelId: "UChBQgieUidXV1CmDxSdRm3g", fallbackUrl: "https://citizen.digital/tv/citizen-tv-15" },
+  { id: "ktn-news", name: "KTN News", source: "Official YouTube", youtubeChannelId: "UCKVsdeoHExltrWMuK0hOWmg", fallbackUrl: "https://www.standardmedia.co.ke/ktnnews/live" },
+  { id: "ntv-kenya", name: "NTV Kenya", source: "Official YouTube", youtubeChannelId: "UCqBJ47FjJcl61fmSbcadAVg", fallbackUrl: "https://ntvkenya.co.ke/live/ntv-kenya-livestream/" },
+  { id: "tv47-kenya", name: "TV47 Kenya", source: "Official YouTube", youtubeChannelId: "UC_zA9UIWE1fB-jfFk_DBSYw", fallbackUrl: "https://www.tv47.digital/live-tv/" },
+  { id: "kbc-channel-1", name: "KBC Channel 1", source: "Official YouTube", youtubeChannelId: "UCypNjM5hP1qcUqQZe57jNfg", fallbackUrl: "https://www.kbc.co.ke/live/" },
+  { id: "k24-tv", name: "K24TV", source: "Official YouTube", youtubeChannelId: "UCt3SE-Mvs3WwP7UW-PiFdqQ", fallbackUrl: "https://k24.digital/" },
+  { id: "inooro-tv", name: "iNooro TV", source: "Official YouTube", youtubeChannelId: "UCZlNMLTVNxzwB0axilK-rDw", fallbackUrl: "https://citizen.digital/tv/inooro-tv-live-14" },
+];
+
+const INTERNATIONAL_CHANNELS = [
+  { id: "cnn-international", name: "CNN International", source: "Official YouTube", youtubeChannelId: "UCupvZG-5ko_eiXAupbDfxWw", fallbackUrl: "https://edition.cnn.com/watch/cnn-stream" },
+  { id: "bbc-news", name: "BBC News", source: "Official YouTube", youtubeChannelId: "UC16niRr50-MSBwiO3YDb3RA", fallbackUrl: "https://www.bbc.com/watch-live-news" },
+  { id: "al-jazeera-english", name: "Al Jazeera English", source: "Official YouTube", youtubeChannelId: "UCNye-wNBqNL5ZzHSJj3l8Bg", fallbackUrl: "https://www.aljazeera.com/video/live/" },
+  { id: "france-24-english", name: "France 24 English", source: "Official YouTube", youtubeChannelId: "UCQfwfsi5VrQ8yKZ-UWmAEFg", fallbackUrl: "https://www.france24.com/en/live" },
 ];
 
 function liveChannelUrl(channel) {
@@ -1350,6 +1357,18 @@ function plHeading() {
   document.title = `${plState.type === "tv" ? `${plState.title} S${plState.season}:E${plState.episode}` : plState.title} — Watch — MOVIEFREE`;
 }
 
+function syncLiveFallback() {
+  const box = $("#pl-live-fallback");
+  if (!box) return;
+  const link = $("#pl-live-fallback-link");
+  const isLive = Boolean(plState && plState.type === "live");
+  box.hidden = !isLive;
+  if (isLive && link) {
+    link.href = plState.fallbackUrl || "#";
+    link.hidden = !plState.fallbackUrl;
+  }
+}
+
 function loadSource() {
   if (!plState) return;
   const srv = plState.type === "live" ? null : PLAYER_SERVERS[plState.server];
@@ -1380,6 +1399,7 @@ function loadSource() {
     $("#pl-loading-text").textContent = `${srv ? srv.name : "Live TV"} is slow. Try another channel.`;
   }, LOAD_SLOW_MS);
   plHeading();
+  syncLiveFallback();
   syncNext();
   if (plState.type === "tv") {
     const prog = store.get(PROGRESS_KEY, {});
@@ -1443,17 +1463,17 @@ async function goEpisode(season, episode) {
 function openLiveChannel(channel, trigger) {
   if (!channel) return;
   openPlayer(
-    { type: "live", id: channel.id, title: channel.name, liveUrl: liveChannelUrl(channel) },
+    { type: "live", id: channel.id, title: channel.name, liveUrl: liveChannelUrl(channel), fallbackUrl: channel.fallbackUrl },
     trigger,
   );
 }
 
-async function openPlayer({ type, id, title, season, episode, liveUrl }, trigger) {
+async function openPlayer({ type, id, title, season, episode, liveUrl, fallbackUrl }, trigger) {
   if (!id) return;
   closeTrailer();
   closeDrawers({ restoreFocus: false });
   plReturnFocus = trigger || document.activeElement;
-  plState = { type, id: String(id), imdbId: "", liveUrl: liveUrl || "", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
+  plState = { type, id: String(id), imdbId: "", liveUrl: liveUrl || "", fallbackUrl: fallbackUrl || "", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
   const known = itemIndex.get(`${type}:${id}`) || itemIndex.get(`${type}:${Number(id)}`);
   if (known) {
     plState.title = plState.title || titleOf(known);
@@ -2178,6 +2198,7 @@ function liveChannelCardHTML(channel) {
       <div class="card-t">${esc(channel.name)}</div>
       <div class="card-t-sub">${esc(channel.source)}</div>
     </button>
+    ${channel.fallbackUrl ? `<a href="${esc(channel.fallbackUrl)}" target="_blank" rel="noopener noreferrer" class="block mt-2 text-[11px] font-bold underline">Official website</a>` : ""}
   </article>`;
 }
 
@@ -2188,7 +2209,11 @@ async function viewLiveTv(route, token) {
       <p class="px-[var(--gutter)] mt-4 text-[13px] font-bold uppercase">Official free streams from broadcaster YouTube channels</p>
     </div>
     <section style="padding-top:56px">
+      <h2 class="px-[var(--gutter)] mb-5 text-[13px] font-bold uppercase">Kenya</h2>
       <div class="grid4">${LIVE_CHANNELS.map(liveChannelCardHTML).join("")}</div>
+      <h2 class="px-[var(--gutter)] mt-14 mb-5 text-[13px] font-bold uppercase">International News</h2>
+      <div class="grid4">${INTERNATIONAL_CHANNELS.map(liveChannelCardHTML).join("")}</div>
+      <p class="px-[var(--gutter)] mt-8 text-[12px] text-slate-500">Streams depend on broadcaster schedules, regional restrictions, and embedding permissions. Official websites may have different availability.</p>
     </section>`;
   if (live(token)) requestAnimationFrame(() => fitDisplay(app));
 }
@@ -2363,6 +2388,9 @@ document.addEventListener("click", (e) => {
       case "menu":
         e.preventDefault();
         return openDrawer("menu", act);
+      case "install-app":
+        e.preventDefault();
+        return installWebApp();
       case "close-drawer":
         return closeDrawers();
       case "watchlist":
@@ -2378,7 +2406,7 @@ document.addEventListener("click", (e) => {
         return openPlayer({ type: act.dataset.type, id: act.dataset.id, title: act.dataset.title, season: act.dataset.season, episode: act.dataset.episode }, act);
       case "live-channel": {
         e.preventDefault();
-        const channel = LIVE_CHANNELS.find((item) => item.id === act.dataset.channel);
+        const channel = [...LIVE_CHANNELS, ...INTERNATIONAL_CHANNELS].find((item) => item.id === act.dataset.channel);
         return openLiveChannel(channel, act);
       }
       case "hero-play": {
@@ -2543,6 +2571,52 @@ window.addEventListener("resize", () => {
     fitDisplay(app);
   });
 });
+
+/* ============================== INSTALLABLE WEB APP ============================== */
+let deferredInstallPrompt = null;
+
+function isStandaloneMode() {
+  return window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+}
+
+function updateInstallButtons() {
+  const standalone = isStandaloneMode();
+  $$('[data-action="install-app"]').forEach((button) => {
+    button.hidden = standalone;
+    button.setAttribute("aria-hidden", String(standalone));
+  });
+}
+
+async function installWebApp() {
+  if (activeDrawer) closeDrawers();
+  if (isStandaloneMode()) return;
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    updateInstallButtons();
+    return;
+  }
+  const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  alert(ios
+    ? "To install MOVIEFREE on iPhone or iPad: tap Share, then choose Add to Home Screen."
+    : "To install MOVIEFREE, open your browser menu and choose Install app or Add to Home Screen. If that option is unavailable, bookmark this site for quick access.");
+}
+
+window.addEventListener("beforeinstallprompt", (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  updateInstallButtons();
+});
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  updateInstallButtons();
+});
+window.matchMedia("(display-mode: standalone)").addEventListener?.("change", updateInstallButtons);
+updateInstallButtons();
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
 
 /* ============================== INIT ============================== */
 function initMenuGenres() {

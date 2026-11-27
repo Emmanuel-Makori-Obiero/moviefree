@@ -7,6 +7,7 @@
     <meta name="description" content="MOVIEFREE: in theaters, coming soon, trending films and television. Catalogue data from TMDB." />
     <meta name="theme-color" content="#000000" />
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link rel="preconnect" href="https://image.tmdb.org" />
@@ -97,6 +98,7 @@
           <a class="menu-link" href="?browse=live-tv" data-link>Live TV</a>
           <a class="menu-link" href="?browse=tv" data-link>Popular Series</a>
           <a class="menu-link" href="?browse=tv-top" data-link>Top Rated Series</a>
+          <button class="menu-link text-left" type="button" data-action="install-app">Download Web App</button>
         </div>
         <div class="menu-sec menu-small">
           <a class="menu-link" href="?browse=watchlist" data-link>My Watchlist</a>
@@ -162,6 +164,7 @@
             <li><a href="?browse=watchlist" data-link>Watchlist</a></li>
             <li><a href="?browse=recent" data-link>Recently Viewed</a></li>
             <li><a href="?browse=all" data-link>Filter by Genre</a></li>
+            <li><button type="button" data-action="install-app" class="underline text-left">Download Web App</button></li>
           </ul>
         </div>
         <div class="ft-box ft-tmdb">
@@ -200,6 +203,10 @@
         <div class="pl-heading">
           <h2 class="pl-title" id="pl-title"></h2>
           <span class="pl-sub" id="pl-sub"></span>
+          <div id="pl-live-fallback" hidden style="margin-top:8px;font-size:12px">
+            <span>Official broadcaster source:</span>
+            <a id="pl-live-fallback-link" href="#" target="_blank" rel="noopener noreferrer" style="text-decoration:underline;margin-left:4px">Open Official Source</a>
+          </div>
         </div>
         <div class="pl-tools">
           <button type="button" class="pl-tool pl-tool--episodes" data-action="pl-episodes" id="pl-episodes-btn" aria-expanded="false" aria-controls="pl-eps" hidden>
