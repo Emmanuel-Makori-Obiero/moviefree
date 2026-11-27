@@ -4042,3 +4042,17 @@ html, body { max-width: 100%; overflow-x: hidden; }
 /* Full-width phone shell */
 html, body, #app, #site-footer { width: 100%; max-width: 100%; overflow-x: hidden; }
 .hero { width: 100%; max-width: 100%; }
+
+/* Compact mobile navbar: keep every action inside the viewport. */
+@media (max-width: 767px) {
+  .hdr { width: 100%; min-width: 0; padding-left: 8px; padding-right: 8px; }
+  .hdr-brand { display: none; }
+  .hdr-right { min-width: 0; flex: 1; justify-content: flex-end; }
+  .top-search { width: auto; min-width: 0; flex: 1 1 auto; margin-right: 4px; }
+  .top-search input { min-width: 0; }
+  .hdr-icons { flex: none; min-width: 0; gap: 0; }
+  .hdr-icons > .hdr-icon[data-action="search"] { display: none; }
+  .hdr-icons > .relative { width: 40px; }
+  .hdr-icon, .hdr-install { width: 40px; min-width: 40px; height: 40px; min-height: 40px; padding: 0; }
+  .hdr-install-label { display: none; }
+}
