@@ -244,13 +244,13 @@ const GENRES = [
 
 // Official broadcaster channels with free YouTube live streams.
 const LIVE_CHANNELS = [
-  { id: "citizen-tv", name: "Citizen TV", source: "Official YouTube", youtubeChannelId: "UChBQgieUidXV1CmDxSdRm3g", image: "https://yt3.googleusercontent.com/wj5XPSPtxg2oy9kdzdfRFRtyebgfB5mirkM8QmLR0TFqdzxga7iSWImBZo0DyQQ16zUvmDHr=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://citizen.digital/tv/citizen-tv-15" },
-  { id: "ktn-news", name: "KTN News", source: "Official YouTube", youtubeChannelId: "UCKVsdeoHExltrWMuK0hOWmg", image: "https://yt3.googleusercontent.com/_mzOQ0PLJxAi8imGLd7sICwGcIN5sDxisZgMftoM4FW0_UuRRGHGCmcWhv8cqPqPcVQcpVKh=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.standardmedia.co.ke/ktnnews/live" },
-  { id: "ntv-kenya", name: "NTV Kenya", source: "Official YouTube", youtubeChannelId: "UCqBJ47FjJcl61fmSbcadAVg", image: "https://yt3.googleusercontent.com/BXqMO9VfeJGnU-D-0jdB-jVrbYXqFN4QX0ipmbF2QNKdy5nH6QZ3Sc4n0KIsOxbdXuTwGdGWfw=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://ntvkenya.co.ke/live/ntv-kenya-livestream/" },
+  { id: "citizen-tv", name: "Citizen TV", source: "Official YouTube", youtubeChannelId: "UChBQgieUidXV1CmDxSdRm3g", image: "https://yt3.googleusercontent.com/wj5XPSPtxg2oy9kdzdfRFRtyebgfB5mirkM8QmLR0TFqdzxga7iSWImBZo0DyQQ16zUvmDHr=s900-c-k-c0x00ffffff-no-rj", embedUrl: "https://citizen.digital/tv/citizen-tv-15", fallbackUrl: "https://citizen.digital/tv/citizen-tv-15" },
+  { id: "ktn-news", name: "KTN News", source: "Official Dacast", youtubeChannelId: "UCKVsdeoHExltrWMuK0hOWmg", image: "https://yt3.googleusercontent.com/_mzOQ0PLJxAi8imGLd7sICwGcIN5sDxisZgMftoM4FW0_UuRRGHGCmcWhv8cqPqPcVQcpVKh=s900-c-k-c0x00ffffff-no-rj", embedUrl: "https://iframe.dacast.com/live/4cce2c4f-8e53-6687-c787-7fd4a00a24ad/26ad416e-bb72-9988-625c-5e6243e4ded1?autoplay=1", fallbackUrl: "https://www.standardmedia.co.ke/ktnnews/live" },
+  { id: "ntv-kenya", name: "NTV Kenya", source: "Official YouTube", youtubeChannelId: "UCqBJ47FjJcl61fmSbcadAVg", image: "https://yt3.googleusercontent.com/BXqMO9VfeJGnU-D-0jdB-jVrbYXqFN4QX0ipmbF2QNKdy5nH6QZ3Sc4n0KIsOxbdXuTwGdGWfw=s900-c-k-c0x00ffffff-no-rj", embedUrl: "https://www.youtube.com/embed/6Qj6kqBhflc?autoplay=1&enablejsapi=1&loop=1", fallbackUrl: "https://ntvkenya.co.ke/live/ntv-kenya-livestream/" },
   { id: "tv47-kenya", name: "TV47 Kenya", source: "Official YouTube", youtubeChannelId: "UC_zA9UIWE1fB-jfFk_DBSYw", image: "https://yt3.googleusercontent.com/f-VHwTo8tlpmtZMJ4DOciWdcq9skkl2fDzn607b8e90tdGv4pupJh5YzXSD94n8czr6i9Mhs=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.tv47.digital/live-tv/" },
-  { id: "kbc-channel-1", name: "KBC Channel 1", source: "Official YouTube", youtubeChannelId: "UCypNjM5hP1qcUqQZe57jNfg", image: "https://yt3.googleusercontent.com/1fX-2HVqG-T8AaWdFKOJQ_L_JRupPb0ggP3ZrGqAq1i3CYry-vznzX9lbbg5zl0o2gCGzlYkQs8=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.kbc.co.ke/live/" },
+  { id: "kbc-channel-1", name: "KBC Channel 1", source: "Official Castr", youtubeChannelId: "UCypNjM5hP1qcUqQZe57jNfg", image: "https://yt3.googleusercontent.com/1fX-2HVqG-T8AaWdFKOJQ_L_JRupPb0ggP3ZrGqAq1i3CYry-vznzX9lbbg5zl0o2gCGzlYkQs8=s900-c-k-c0x00ffffff-no-rj", embedUrl: "https://player.castr.com/live_5414b5e06f2211f09948b13d179eaf9a", fallbackUrl: "https://www.kbc.co.ke/live/" },
   { id: "k24-tv", name: "K24TV", source: "Official YouTube", youtubeChannelId: "UCt3SE-Mvs3WwP7UW-PiFdqQ", image: "https://yt3.googleusercontent.com/CnPgPD_was9jSpyXOE3IEuuEtBAhyebPtXFoFb0WaIc3mrZSwT8snPU5yQtueoGpFDtTM-7U9A=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://k24.digital/" },
-  { id: "inooro-tv", name: "iNooro TV", source: "Official YouTube", youtubeChannelId: "UCZlNMLTVNxzwB0axilK-rDw", image: "https://yt3.googleusercontent.com/-7KyJe8abxH2UV5egD5fd9VNT2BI-nHnJJT9JCVcSrzJeIcD2DrkSaBt4waEzlXByeazYqUBXHU=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://citizen.digital/tv/inooro-tv-live-14" },
+  { id: "inooro-tv", name: "iNooro TV", source: "Official Citizen", youtubeChannelId: "UCZlNMLTVNxzwB0axilK-rDw", image: "https://yt3.googleusercontent.com/-7KyJe8abxH2UV5egD5fd9VNT2BI-nHnJJT9JCVcSrzJeIcD2DrkSaBt4waEzlXByeazYqUBXHU=s900-c-k-c0x00ffffff-no-rj", embedUrl: "https://citizen.digital/tv/inooro-tv-live-14", fallbackUrl: "https://citizen.digital/tv/inooro-tv-live-14" },
 ];
 
 const INTERNATIONAL_CHANNELS = [
@@ -1098,10 +1098,13 @@ const searchForm = $("#search-form");
 const searchInput = $("#search-input");
 const topSearchForm = $("#top-search-form");
 const topSearchInput = $("#top-search-input");
+const topSearchSuggestions = $("#top-search-suggestions");
 const suggestionsList = $("#suggestions-list");
 let debounceTimer = null;
 let suggestSeq = 0;
 let activeSuggestion = -1;
+let topSuggestTimer = null;
+let topSuggestSeq = 0;
 
 function suggestionMeta(item) {
   if (typeOf(item) === "person") {
@@ -1207,13 +1210,52 @@ searchForm.addEventListener("submit", (e) => {
   navigate(`?q=${encodeURIComponent(q)}`);
 });
 if (topSearchForm && topSearchInput) {
+  topSearchInput.addEventListener("input", () => {
+    const query = topSearchInput.value.trim();
+    clearTimeout(topSuggestTimer);
+    if (!query) {
+      topSuggestSuggestions([]);
+      return;
+    }
+    topSuggestTimer = setTimeout(async () => {
+      const seq = ++topSuggestSeq;
+      try {
+        const data = await searchAllContent(query);
+        if (seq === topSuggestSeq) topSuggestSuggestions(data.results || [], query);
+      } catch {
+        if (seq === topSuggestSeq) topSuggestSuggestions([]);
+      }
+    }, 180);
+  });
+  topSearchInput.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") topSuggestSuggestions([]);
+  });
+  document.addEventListener("click", (e) => {
+    if (!topSearchForm.contains(e.target)) topSuggestSuggestions([]);
+  });
   topSearchForm.addEventListener("submit", (e) => {
     e.preventDefault();
     const q = topSearchInput.value.trim();
     if (!q) return topSearchInput.focus();
+    topSuggestSuggestions([]);
     searchInput.value = q;
     navigate(`?q=${encodeURIComponent(q)}`);
   });
+}
+
+function topSuggestSuggestions(results, query = "") {
+  if (!topSearchSuggestions) return;
+  const items = results
+    .filter((item) => item.media_type === "movie" || item.media_type === "tv")
+    .filter((item, i, all) => all.findIndex((x) => x.id === item.id && x.media_type === item.media_type) === i)
+    .slice(0, 6);
+  topSearchSuggestions.innerHTML = items.length
+    ? items.map((item) => {
+        const poster = item.poster_path ? img("w92", item.poster_path) : PLACEHOLDER;
+        return `<a class="top-suggestion" role="option" href="${hrefOf(item)}" data-link><img src="${poster}" alt="" loading="lazy" /><span><strong>${highlight(titleOf(item), query)}</strong><small>${typeOf(item) === "tv" ? "TV" : "MOVIE"}${yearOf(item) ? ` · ${esc(yearOf(item))}` : ""}</small></span></a>`;
+      }).join("") + `<a class="top-suggestion top-suggestion--all" role="option" href="?q=${encodeURIComponent(query)}" data-link>See all results for “${esc(query)}” →</a>`
+    : "";
+  topSearchSuggestions.hidden = !items.length;
 }
 
 /* ============================== TRAILER MODAL (NEON) ============================== */
@@ -1485,7 +1527,7 @@ async function goEpisode(season, episode) {
 function openLiveChannel(channel, trigger) {
   if (!channel) return;
   openPlayer(
-    { type: "live", id: channel.id, title: channel.name, liveUrl: liveChannelUrl(channel), fallbackUrl: channel.fallbackUrl, youtubeUrl: liveChannelPageUrl(channel) },
+    { type: "live", id: channel.id, title: channel.name, liveUrl: channel.embedUrl || liveChannelUrl(channel), fallbackUrl: channel.fallbackUrl, youtubeUrl: liveChannelPageUrl(channel) },
     trigger,
   );
 }
