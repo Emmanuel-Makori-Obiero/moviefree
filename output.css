@@ -3972,3 +3972,26 @@
     }
   }
 }
+
+/* MOVIEFREE live TV and header search additions */
+.top-search {
+  width: min(480px, 32vw); height: 42px; margin-right: 30px; padding: 0 13px; display: flex; align-items: center; gap: 10px;
+  border: 1px solid currentColor; border-radius: 22px; background: rgba(255,255,255,.08); color: inherit; opacity: .9;
+}
+.top-search svg { width: 18px; height: 18px; flex: none; }
+.top-search input { min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: inherit; font: 500 13px/1 var(--font-ui); }
+.top-search input::placeholder { color: currentColor; opacity: .62; }
+.top-search kbd { border: 1px solid currentColor; border-radius: 4px; padding: 2px 5px; font: 500 10px/1 var(--font-ui); opacity: .55; }
+.card--station { --w: 176px; }
+.card--station .card-media { aspect-ratio: 16/9; }
+.card--station .card-t { font-size: 12px; }
+.card--station .card-t-sub { font-size: 11px; }
+@media (max-width: 1100px) {
+  .top-search { width: min(360px, 42vw); margin-right: 22px; }
+}
+@media (max-width: 767px) {
+  .top-search { width: min(210px, 48vw); height: 36px; margin-right: 14px; padding: 0 10px; gap: 7px; }
+  .top-search input { font-size: 11px; }
+  .top-search kbd { display: none; }
+  .card--station { --w: 43vw; }
+}

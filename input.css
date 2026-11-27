@@ -356,7 +356,14 @@
   @media (max-width: 767px) { .card-play svg { width: 34px; height: 40px; } .card-bigtitle { bottom: 70px; left: 18px; } .card-play { left: 18px; bottom: 16px; } }
   .card--portrait { --w: 168px; }
   .card--portrait .card-media { aspect-ratio: 2/3; }
-  @media (max-width: 767px) { .card--portrait { --w: 42vw; } }
+  .card--station { --w: 176px; }
+  .card--station .card-media { aspect-ratio: 16/9; }
+  .card--station .card-t { font-size: 12px; }
+  .card--station .card-t-sub { font-size: 11px; }
+  @media (max-width: 767px) {
+    .card--portrait { --w: 42vw; }
+    .card--station { --w: 43vw; }
+  }
 
   /* Grid (browse) */
   .grid4 { display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 44px var(--card-gap); padding: 0 var(--gutter); }

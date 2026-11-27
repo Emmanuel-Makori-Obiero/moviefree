@@ -244,26 +244,26 @@ const GENRES = [
 
 // Official broadcaster channels with free YouTube live streams.
 const LIVE_CHANNELS = [
-  { id: "citizen-tv", name: "Citizen TV", source: "Official YouTube", youtubeChannelId: "UChBQgieUidXV1CmDxSdRm3g", fallbackUrl: "https://citizen.digital/tv/citizen-tv-15" },
-  { id: "ktn-news", name: "KTN News", source: "Official YouTube", youtubeChannelId: "UCKVsdeoHExltrWMuK0hOWmg", fallbackUrl: "https://www.standardmedia.co.ke/ktnnews/live" },
-  { id: "ntv-kenya", name: "NTV Kenya", source: "Official YouTube", youtubeChannelId: "UCqBJ47FjJcl61fmSbcadAVg", fallbackUrl: "https://ntvkenya.co.ke/live/ntv-kenya-livestream/" },
-  { id: "tv47-kenya", name: "TV47 Kenya", source: "Official YouTube", youtubeChannelId: "UC_zA9UIWE1fB-jfFk_DBSYw", fallbackUrl: "https://www.tv47.digital/live-tv/" },
-  { id: "kbc-channel-1", name: "KBC Channel 1", source: "Official YouTube", youtubeChannelId: "UCypNjM5hP1qcUqQZe57jNfg", fallbackUrl: "https://www.kbc.co.ke/live/" },
-  { id: "k24-tv", name: "K24TV", source: "Official YouTube", youtubeChannelId: "UCt3SE-Mvs3WwP7UW-PiFdqQ", fallbackUrl: "https://k24.digital/" },
-  { id: "inooro-tv", name: "iNooro TV", source: "Official YouTube", youtubeChannelId: "UCZlNMLTVNxzwB0axilK-rDw", fallbackUrl: "https://citizen.digital/tv/inooro-tv-live-14" },
+  { id: "citizen-tv", name: "Citizen TV", source: "Official YouTube", youtubeChannelId: "UChBQgieUidXV1CmDxSdRm3g", image: "https://yt3.googleusercontent.com/wj5XPSPtxg2oy9kdzdfRFRtyebgfB5mirkM8QmLR0TFqdzxga7iSWImBZo0DyQQ16zUvmDHr=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://citizen.digital/tv/citizen-tv-15" },
+  { id: "ktn-news", name: "KTN News", source: "Official YouTube", youtubeChannelId: "UCKVsdeoHExltrWMuK0hOWmg", image: "https://yt3.googleusercontent.com/_mzOQ0PLJxAi8imGLd7sICwGcIN5sDxisZgMftoM4FW0_UuRRGHGCmcWhv8cqPqPcVQcpVKh=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.standardmedia.co.ke/ktnnews/live" },
+  { id: "ntv-kenya", name: "NTV Kenya", source: "Official YouTube", youtubeChannelId: "UCqBJ47FjJcl61fmSbcadAVg", image: "https://yt3.googleusercontent.com/BXqMO9VfeJGnU-D-0jdB-jVrbYXqFN4QX0ipmbF2QNKdy5nH6QZ3Sc4n0KIsOxbdXuTwGdGWfw=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://ntvkenya.co.ke/live/ntv-kenya-livestream/" },
+  { id: "tv47-kenya", name: "TV47 Kenya", source: "Official YouTube", youtubeChannelId: "UC_zA9UIWE1fB-jfFk_DBSYw", image: "https://yt3.googleusercontent.com/f-VHwTo8tlpmtZMJ4DOciWdcq9skkl2fDzn607b8e90tdGv4pupJh5YzXSD94n8czr6i9Mhs=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.tv47.digital/live-tv/" },
+  { id: "kbc-channel-1", name: "KBC Channel 1", source: "Official YouTube", youtubeChannelId: "UCypNjM5hP1qcUqQZe57jNfg", image: "https://yt3.googleusercontent.com/1fX-2HVqG-T8AaWdFKOJQ_L_JRupPb0ggP3ZrGqAq1i3CYry-vznzX9lbbg5zl0o2gCGzlYkQs8=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.kbc.co.ke/live/" },
+  { id: "k24-tv", name: "K24TV", source: "Official YouTube", youtubeChannelId: "UCt3SE-Mvs3WwP7UW-PiFdqQ", image: "https://yt3.googleusercontent.com/CnPgPD_was9jSpyXOE3IEuuEtBAhyebPtXFoFb0WaIc3mrZSwT8snPU5yQtueoGpFDtTM-7U9A=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://k24.digital/" },
+  { id: "inooro-tv", name: "iNooro TV", source: "Official YouTube", youtubeChannelId: "UCZlNMLTVNxzwB0axilK-rDw", image: "https://yt3.googleusercontent.com/-7KyJe8abxH2UV5egD5fd9VNT2BI-nHnJJT9JCVcSrzJeIcD2DrkSaBt4waEzlXByeazYqUBXHU=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://citizen.digital/tv/inooro-tv-live-14" },
 ];
 
 const INTERNATIONAL_CHANNELS = [
-  { id: "cnn-international", name: "CNN International", source: "Official YouTube", youtubeChannelId: "UCupvZG-5ko_eiXAupbDfxWw", fallbackUrl: "https://edition.cnn.com/watch/cnn-stream" },
-  { id: "bbc-news", name: "BBC News", source: "Official YouTube", youtubeChannelId: "UC16niRr50-MSBwiO3YDb3RA", fallbackUrl: "https://www.bbc.com/watch-live-news" },
-  { id: "al-jazeera-english", name: "Al Jazeera English", source: "Official YouTube", youtubeChannelId: "UCNye-wNBqNL5ZzHSJj3l8Bg", fallbackUrl: "https://www.aljazeera.com/video/live/" },
-  { id: "france-24-english", name: "France 24 English", source: "Official YouTube", youtubeChannelId: "UCQfwfsi5VrQ8yKZ-UWmAEFg", fallbackUrl: "https://www.france24.com/en/live" },
+  { id: "cnn-international", name: "CNN International", source: "Official YouTube", youtubeChannelId: "UCupvZG-5ko_eiXAupbDfxWw", image: "https://yt3.googleusercontent.com/wSqAf5WdxsGsl7ZMtlyfz3qKULo_URoFjmKky0gLThm_Jtu2wsVHMu-XzGZPAb-z8zeMBYUUMYA=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://edition.cnn.com/watch/cnn-stream" },
+  { id: "bbc-news", name: "BBC News", source: "Official YouTube", youtubeChannelId: "UC16niRr50-MSBwiO3YDb3RA", image: "https://yt3.googleusercontent.com/v4JamQ9B-PUiJHjmZQs9UwTaoLQW8vijJMMpV5QvA2wHQ6iwWM8Q1s6O4jgTl0dtDigVWAi7SA=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.bbc.com/watch-live-news" },
+  { id: "al-jazeera-english", name: "Al Jazeera English", source: "Official YouTube", youtubeChannelId: "UCNye-wNBqNL5ZzHSJj3l8Bg", image: "https://yt3.googleusercontent.com/XsTga3Nsfc1E6ZgC6HfHfzTG_3zhuZleOnsKxSK2aILMjwkkIm-0vdALFaU-yt0Lw07iLtbSifk=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.aljazeera.com/video/live/" },
+  { id: "france-24-english", name: "France 24 English", source: "Official YouTube", youtubeChannelId: "UCQfwfsi5VrQ8yKZ-UWmAEFg", image: "https://yt3.googleusercontent.com/ytc/AIdro_n_QTJ5-GLGnftQFkb7Kp36W2eBH3H-7ZqTQxzFkkqGrIE=s900-c-k-c0x00ffffff-no-rj", fallbackUrl: "https://www.france24.com/en/live" },
 ];
 
 function liveChannelUrl(channel) {
   const params = new URLSearchParams({
     channel: channel.youtubeChannelId,
-    autoplay: "0",
+    autoplay: "1",
     playsinline: "1",
     rel: "0",
   });
@@ -1091,6 +1091,8 @@ function trapFocus(e, container) {
 /* ============================== LIVE SEARCH (Criterion drawer) ============================== */
 const searchForm = $("#search-form");
 const searchInput = $("#search-input");
+const topSearchForm = $("#top-search-form");
+const topSearchInput = $("#top-search-input");
 const suggestionsList = $("#suggestions-list");
 let debounceTimer = null;
 let suggestSeq = 0;
@@ -1196,8 +1198,18 @@ searchForm.addEventListener("submit", (e) => {
   e.preventDefault();
   const q = searchInput.value.trim();
   if (!q) return searchInput.focus();
+  if (topSearchInput) topSearchInput.value = q;
   navigate(`?q=${encodeURIComponent(q)}`);
 });
+if (topSearchForm && topSearchInput) {
+  topSearchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const q = topSearchInput.value.trim();
+    if (!q) return topSearchInput.focus();
+    searchInput.value = q;
+    navigate(`?q=${encodeURIComponent(q)}`);
+  });
+}
 
 /* ============================== TRAILER MODAL (NEON) ============================== */
 const trailerModal = $("#trailer-modal");
@@ -1743,6 +1755,7 @@ async function viewHome(route, token) {
     </section>
 
     ${nowPlaying.length ? rowSection("In Theaters", nowPlaying.filter((m) => m.backdrop_path).map((m) => cardHTML(m, { size: "xl", chip: "In Theaters" })).join(""), { link: "?browse=now-playing", id: "row-theaters" }) : ""}
+    ${rowSection("TV Stations", LIVE_CHANNELS.map(liveChannelCardHTML).join(""), { link: "?browse=live-tv", id: "row-live-tv" })}
     ${soon.length ? rowSection("Coming Soon", soon.map((m) => cardHTML(m, { size: "hero" })).join(""), { link: "?browse=upcoming", id: "row-soon" }) : ""}
     ${tvPopular.length ? rowSection("Series", tvPopular.filter((m) => m.backdrop_path).map((m) => cardHTML(m, { markTv: true })).join(""), { link: "?browse=tv", id: "row-series" }) : ""}
     ${rowSection("Trending Now", trending.filter((m) => m.backdrop_path).map((m) => cardHTML(m, { ...ctx, markTv: true })).join(""), { link: "?browse=trending", id: "row-trending" })}
@@ -2097,6 +2110,7 @@ async function viewSearch(route, token) {
     `<section class="sr-body"><div class="sr-sechead"><span class="sr-seclabel">Searching…</span></div><div class="sr-covers">${'<div><div class="sk" style="aspect-ratio:2/3"></div></div>'.repeat(7)}</div></section>`;
   wireSrForm();
   searchInput.value = q;
+  if (topSearchInput) topSearchInput.value = q;
   if (!q) {
     $(".sr-body", app).innerHTML = `<p class="sr-empty">Type a film, series or person above and press Enter.</p>`;
     return;
@@ -2189,11 +2203,13 @@ function wireSrForm() {
 
 /* ============================== VIEW: BROWSE (NEON catalogue + genre / availability filters) ============================== */
 function liveChannelCardHTML(channel) {
-  return `<article class="card card--portrait">
+  return `<article class="card card--station">
     <button type="button" class="block w-full text-left" data-action="live-channel" data-channel="${esc(channel.id)}" aria-label="Watch ${esc(channel.name)} live">
-      <div class="card-media" style="background:#111;display:flex;align-items:center;justify-content:center;min-height:180px">
-        <span class="card-chip">LIVE</span>
-        <span class="display" style="font-size:clamp(24px,3vw,42px);padding:20px;text-align:center">${esc(channel.name)}</span>
+      <div class="card-media" style="position:relative;overflow:hidden;background:#111;display:flex;align-items:center;justify-content:center;min-height:0">
+        ${channel.image ? `<img src="${esc(channel.image)}" alt="${esc(channel.name)} official channel" loading="lazy" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.82" onerror="this.hidden=true" />` : ""}
+        <span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.7))"></span>
+        <span class="card-chip" style="position:relative;z-index:1">LIVE</span>
+        <span class="display" style="position:relative;z-index:1;font-size:clamp(24px,3vw,42px);padding:20px;text-align:center;text-shadow:0 2px 16px #000">${esc(channel.name)}</span>
       </div>
       <div class="card-t">${esc(channel.name)}</div>
       <div class="card-t-sub">${esc(channel.source)}</div>
