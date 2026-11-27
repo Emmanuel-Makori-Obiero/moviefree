@@ -104,6 +104,8 @@
     background: none; border: 0; padding: 0; position: relative;
   }
   .hdr-icon svg { width: 24px; height: 24px; }
+  .hdr-install { width: auto; min-width: 0; gap: 7px; white-space: nowrap; }
+  .hdr-install-label { font: 700 10px/1 var(--font-label); letter-spacing: .08em; text-transform: uppercase; }
   .hdr-badge {
     position: absolute; top: -6px; right: -8px; min-width: 16px; height: 16px; border-radius: 8px;
     background: var(--color-gold); color: #fff; font: 700 9px/16px var(--font-label); text-align: center; padding: 0 4px;
@@ -819,6 +821,8 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .top-search input { min-width: 0; }
   .hdr-icons { flex: none; min-width: 0; gap: 0; }
   .hdr-icons > .hdr-icon[data-action="search"] { display: none; }
+  .hdr-install { width: 44px; min-width: 44px; padding: 0; }
+  .hdr-install-label { display: none; }
   .grid4 { width: 100%; min-width: 0; }
   .grid4 .card { min-width: 0; }
   .pg-title, .sec-title, .sr-pagetitle { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }

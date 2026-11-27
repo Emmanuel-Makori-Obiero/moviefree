@@ -4030,3 +4030,11 @@ html, body { max-width: 100%; overflow-x: hidden; }
 @media (max-width: 767px) {
   .hdr-icons > .hdr-icon[data-action="search"] { display: none; }
 }
+
+/* Visible PWA download action */
+.hdr-install { width: auto; min-width: 0; gap: 7px; white-space: nowrap; }
+.hdr-install-label { font: 700 10px/1 var(--font-label); letter-spacing: .08em; text-transform: uppercase; }
+@media (max-width: 767px) {
+  .hdr-install { width: 44px; min-width: 44px; padding: 0; }
+  .hdr-install-label { display: none; }
+}
