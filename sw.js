@@ -1,9 +1,9 @@
-const CACHE_NAME = "moviefree-shell-v1";
+const CACHE_NAME = "moviefree-shell-v2-mobile-nav";
 const SHELL = [
   "./",
   "./index.html",
   "./index.js",
-  "./output.css",
+  "./output.css?v=20261127-mobile-nav",
   "./favicon.svg",
   "./manifest.webmanifest",
   "./icon-192.png",
