@@ -242,6 +242,27 @@ const GENRES = [
   { id: "10749", name: "Romance" },
 ];
 
+// Official broadcaster channels with free YouTube live streams.
+const LIVE_CHANNELS = [
+  { id: "citizen-tv", name: "Citizen TV", source: "Official YouTube", youtubeChannelId: "UChBQgieUidXV1CmDxSdRm3g" },
+  { id: "ktn-news", name: "KTN News", source: "Official YouTube", youtubeChannelId: "UCKVsdeoHExltrWMuK0hOWmg" },
+  { id: "ntv-kenya", name: "NTV Kenya", source: "Official YouTube", youtubeChannelId: "UCqBJ47FjJcl61fmSbcadAVg" },
+  { id: "tv47-kenya", name: "TV47 Kenya", source: "Official YouTube", youtubeChannelId: "UC_zA9UIWE1fB-jfFk_DBSYw" },
+  { id: "kbc-channel-1", name: "KBC Channel 1", source: "Official YouTube", youtubeChannelId: "UCypNjM5hP1qcUqQZe57jNfg" },
+  { id: "k24-tv", name: "K24TV", source: "Official YouTube", youtubeChannelId: "UCt3SE-Mvs3WwP7UW-PiFdqQ" },
+  { id: "inooro-tv", name: "iNooro TV", source: "Official YouTube", youtubeChannelId: "UCZlNMLTVNxzwB0axilK-rDw" },
+];
+
+function liveChannelUrl(channel) {
+  const params = new URLSearchParams({
+    channel: channel.youtubeChannelId,
+    autoplay: "0",
+    playsinline: "1",
+    rel: "0",
+  });
+  return `https://www.youtube.com/embed/live_stream?${params}`;
+}
+
 // Legacy player state
 let currentMediaId = null;
 let currentMediaType = "movie";
@@ -1320,7 +1341,9 @@ function toggleServers(force) {
 function plHeading() {
   $("#pl-title").textContent = plState.title;
   const sub = $("#pl-sub");
-  if (plState.type === "tv") {
+  if (plState.type === "live") {
+    sub.textContent = "Live TV · Official YouTube stream";
+  } else if (plState.type === "tv") {
     const ep = plState.episodes.find((e) => e.episode_number === plState.episode);
     sub.textContent = `S${plState.season}:E${plState.episode}${ep && ep.name ? ` “${ep.name}”` : ""}`;
   } else sub.textContent = plState.year || "";
@@ -1329,15 +1352,19 @@ function plHeading() {
 
 function loadSource() {
   if (!plState) return;
-  const srv = PLAYER_SERVERS[plState.server];
-  const url = buildStreamUrl(srv, plState.type, plState.id, plState.season, plState.episode, plState.imdbId);
+  const srv = plState.type === "live" ? null : PLAYER_SERVERS[plState.server];
+  const url = plState.type === "live"
+    ? plState.liveUrl
+    : buildStreamUrl(srv, plState.type, plState.id, plState.season, plState.episode, plState.imdbId);
   // A fresh iframe per source: sandbox flags only apply on creation/navigation, and it drops mirror history.
   const f = document.createElement("iframe");
   f.className = "pl-frame";
-  f.title = `${plState.title} — ${srv.name}`;
+  f.title = `${plState.title}${srv ? ` — ${srv.name}` : " — Live TV"}`;
   f.setAttribute("allow", "autoplay; fullscreen; encrypted-media; picture-in-picture");
+  f.setAttribute("allowfullscreen", "");
+  f.setAttribute("webkitallowfullscreen", "");
   f.setAttribute("referrerpolicy", "origin");
-  if (srv.sandbox) f.setAttribute("sandbox", srv.sandbox);
+  if (srv && srv.sandbox) f.setAttribute("sandbox", srv.sandbox);
   f.addEventListener("load", () => {
     clearTimeout(plSlowTimer);
     setTimeout(() => player.classList.remove("is-loading"), 350);
@@ -1346,11 +1373,11 @@ function loadSource() {
   f.src = url;
   player.classList.add("is-loading");
   player.classList.remove("is-slow");
-  $("#pl-loading-text").textContent = `Loading ${srv.name}`;
+  $("#pl-loading-text").textContent = `Loading ${srv ? srv.name : "Live TV"}`;
   clearTimeout(plSlowTimer);
   plSlowTimer = setTimeout(() => {
     player.classList.add("is-slow");
-    $("#pl-loading-text").textContent = `${srv.name} is slow. Try another server.`;
+    $("#pl-loading-text").textContent = `${srv ? srv.name : "Live TV"} is slow. Try another channel.`;
   }, LOAD_SLOW_MS);
   plHeading();
   syncNext();
@@ -1413,18 +1440,27 @@ async function goEpisode(season, episode) {
   loadSource();
 }
 
-async function openPlayer({ type, id, title, season, episode }, trigger) {
+function openLiveChannel(channel, trigger) {
+  if (!channel) return;
+  openPlayer(
+    { type: "live", id: channel.id, title: channel.name, liveUrl: liveChannelUrl(channel) },
+    trigger,
+  );
+}
+
+async function openPlayer({ type, id, title, season, episode, liveUrl }, trigger) {
   if (!id) return;
   closeTrailer();
   closeDrawers({ restoreFocus: false });
   plReturnFocus = trigger || document.activeElement;
-  plState = { type, id: String(id), imdbId: "", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
+  plState = { type, id: String(id), imdbId: "", liveUrl: liveUrl || "", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
   const known = itemIndex.get(`${type}:${id}`) || itemIndex.get(`${type}:${Number(id)}`);
   if (known) {
     plState.title = plState.title || titleOf(known);
     plState.year = yearOf(known);
   }
   player.classList.toggle("is-tv", type === "tv");
+  $("#pl-servers-wrap").hidden = type === "live";
   $("#pl-servers-panel").hidden = true;
   $("#pl-servers-btn").setAttribute("aria-expanded", "false");
   $("#pl-episodes-btn").hidden = type !== "tv";
@@ -1436,7 +1472,7 @@ async function openPlayer({ type, id, title, season, episode }, trigger) {
     $("#pl-eps-list").innerHTML = `<li class="pl-ep-empty">Loading episodes…</li>`;
   }
   $("#pl-next").hidden = true;
-  renderServers();
+  if (type !== "live") renderServers();
   player.classList.remove("hidden");
   document.documentElement.style.overflow = "hidden";
   document.documentElement.classList.add("modal-open");
@@ -1445,6 +1481,11 @@ async function openPlayer({ type, id, title, season, episode }, trigger) {
   window.addEventListener("beforeunload", plGuard);
   $(".pl-back").focus({ preventScroll: true });
   showRotateHint();
+
+  if (type === "live") {
+    loadSource();
+    return;
+  }
 
   if (type === "tv") {
     player.classList.add("is-loading");
@@ -1469,6 +1510,7 @@ async function openPlayer({ type, id, title, season, episode }, trigger) {
 function closePlayer({ fromPop = false } = {}) {
   if (!plState) return;
   plState = null;
+  $("#pl-servers-wrap").hidden = false;
   clearTimeout(plIdleTimer);
   clearTimeout(plSlowTimer);
   window.removeEventListener("beforeunload", plGuard);
@@ -2126,6 +2168,31 @@ function wireSrForm() {
 }
 
 /* ============================== VIEW: BROWSE (NEON catalogue + genre / availability filters) ============================== */
+function liveChannelCardHTML(channel) {
+  return `<article class="card card--portrait">
+    <button type="button" class="block w-full text-left" data-action="live-channel" data-channel="${esc(channel.id)}" aria-label="Watch ${esc(channel.name)} live">
+      <div class="card-media" style="background:#111;display:flex;align-items:center;justify-content:center;min-height:180px">
+        <span class="card-chip">LIVE</span>
+        <span class="display" style="font-size:clamp(24px,3vw,42px);padding:20px;text-align:center">${esc(channel.name)}</span>
+      </div>
+      <div class="card-t">${esc(channel.name)}</div>
+      <div class="card-t-sub">${esc(channel.source)}</div>
+    </button>
+  </article>`;
+}
+
+async function viewLiveTv(route, token) {
+  document.title = "Live TV — MOVIEFREE";
+  app.innerHTML = `<div style="padding-top:calc(var(--hdr-h) + clamp(48px, 7vw, 110px))">
+      <h1 class="pg-title display">Live TV</h1>
+      <p class="px-[var(--gutter)] mt-4 text-[13px] font-bold uppercase">Official free streams from broadcaster YouTube channels</p>
+    </div>
+    <section style="padding-top:56px">
+      <div class="grid4">${LIVE_CHANNELS.map(liveChannelCardHTML).join("")}</div>
+    </section>`;
+  if (live(token)) requestAnimationFrame(() => fitDisplay(app));
+}
+
 const BROWSE = {
   all: { title: "All Titles", filters: true },
   movies: { title: "All Films", path: "/discover/movie", type: "movie", params: { sort_by: "popularity.desc" }, filters: true },
@@ -2141,6 +2208,7 @@ const BROWSE = {
 let browseState = null;
 
 async function viewBrowse(route, token) {
+  if (route.kind === "live-tv") return viewLiveTv(route, token);
   const cfg = BROWSE[route.kind] || BROWSE.movies;
   document.title = `${cfg.title} — MOVIEFREE`;
   const genreName = route.genre ? (GENRES.find((g) => g.id === route.genre) || {}).name : "";
@@ -2308,6 +2376,11 @@ document.addEventListener("click", (e) => {
       case "watch":
         e.preventDefault();
         return openPlayer({ type: act.dataset.type, id: act.dataset.id, title: act.dataset.title, season: act.dataset.season, episode: act.dataset.episode }, act);
+      case "live-channel": {
+        e.preventDefault();
+        const channel = LIVE_CHANNELS.find((item) => item.id === act.dataset.channel);
+        return openLiveChannel(channel, act);
+      }
       case "hero-play": {
         const it = heroState.items[heroState.i];
         if (!it) return;
