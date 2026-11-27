@@ -55,6 +55,162 @@ const STREAM_MIRRORS = [
     tv: (id, s, e) =>
       `https://multiembed.mov/?video_id=${id}&tmdb=1&s=${s}&e=${e}`,
   },
+  {
+    id: "server5",
+    label: "Cinezo (No Ads)",
+    movie: (id) => `https://player.cinezo.live/embed/movie/${id}`,
+    tv: (id, s, e) => `https://player.cinezo.live/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server6",
+    label: "CineSrc (No Ads)",
+    movie: (id) => `https://cinesrc.st/embed/movie/${id}`,
+    tv: (id, s, e) => `https://cinesrc.st/embed/tv/${id}?s=${s}&e=${e}`,
+  },
+  {
+    id: "server7",
+    label: "PeeStream (No Ads)",
+    movie: (id) => `https://peestream.in/embed/?tmdbId=${id}&type=movie`,
+    tv: (id, s, e) => `https://peestream.in/embed/?tmdbId=${id}&type=show&season=${s}&episode=${e}`,
+  },
+  {
+    id: "server8",
+    label: "FlaxMovies (No Ads)",
+    movie: (id) => `https://flaxmovies.xyz/embed/movie/${id}`,
+    tv: (id, s, e) => `https://flaxmovies.xyz/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server9",
+    label: "MoviesAPI (No Ads)",
+    movie: (id) => `https://moviesapi.to/movie/${id}`,
+    tv: (id, s, e) => `https://moviesapi.to/tv/${id}-${s}-${e}`,
+  },
+  {
+    id: "server10",
+    label: "VidSrc Embed",
+    movie: (id) => `https://vidsrc-embed.ru/embed/movie/${id}`,
+    tv: (id, s, e) => `https://vidsrc-embed.ru/embed/tv/${id}-${s}-${e}`,
+  },
+  {
+    id: "server11",
+    label: "VidEasy",
+    movie: (id) => `https://player.videasy.net/movie/${id}`,
+    tv: (id, s, e) => `https://player.videasy.net/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server12",
+    label: "111Movies",
+    movie: (id) => `https://111movies.com/movie/${id}`,
+    tv: (id, s, e) => `https://111movies.com/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server13",
+    label: "VidZee",
+    movie: (id) => `https://player.vidzee.wtf/embed/movie/${id}`,
+    tv: (id, s, e) => `https://player.vidzee.wtf/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server14",
+    label: "Mapple",
+    movie: (id) => `https://mapple.uk/watch/movie/${id}`,
+    tv: (id, s, e) => `https://mapple.uk/watch/tv/${id}-${s}-${e}`,
+  },
+  {
+    id: "server15",
+    label: "PrimeSrc",
+    movie: (id) => `https://primesrc.me/embed/movie?tmdb=${id}`,
+    tv: (id, s, e) => `https://primesrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+  },
+  {
+    id: "server16",
+    label: "AutoEmbed",
+    movie: (id) => `https://player.autoembed.cc/embed/movie/${id}`,
+    tv: (id, s, e) => `https://player.autoembed.cc/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server17",
+    label: "VixSrc",
+    movie: (id) => `https://vixsrc.to/movie/${id}`,
+    tv: (id, s, e) => `https://vixsrc.to/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server18",
+    label: "VidLove",
+    movie: (id) => `https://player.vidlove.cc/embed/movie/${id}`,
+    tv: (id, s, e) => `https://player.vidlove.cc/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server19",
+    label: "VidFast",
+    movie: (id) => `https://vidfast.vc/movie/${id}`,
+    tv: (id, s, e) => `https://vidfast.vc/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server20",
+    label: "Filmu",
+    movie: (id) => `https://embed.filmu.in/movie/${id}`,
+    tv: (id, s, e) => `https://embed.filmu.in/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server21",
+    label: "VidCore",
+    movie: (id) => `https://vidcore.net/movie/${id}`,
+    tv: (id, s, e) => `https://vidcore.net/tv/${id}/${s}/${e}?theme=%23E50914`,
+  },
+  {
+    id: "server22",
+    label: "VAPlayer",
+    movie: (id) => `https://vaplayer.ru/embed/movie/${id}?skin=netflix&color=ff0000`,
+    tv: (id, s, e) => `https://vaplayer.ru/embed/tv/${id}/${s}/${e}?skin=netflix&color=ff0000`,
+  },
+  {
+    id: "server23",
+    label: "Vares",
+    movie: (id) => `https://vares.app/movie/${id}`,
+    tv: (id, s, e) => `https://vares.app/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server24",
+    label: "VidKing",
+    movie: (id) => `https://www.vidking.net/embed/movie/${id}`,
+    tv: (id, s, e) => `https://www.vidking.net/embed/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server25",
+    label: "VidBolt",
+    movie: (id) => `https://vidbolt.xyz/movie/${id}`,
+    tv: (id, s, e) => `https://vidbolt.xyz/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server26",
+    label: "VidNest",
+    movie: (id) => `https://vidnest.fun/movie/${id}`,
+    tv: (id, s, e) => `https://vidnest.fun/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server27",
+    label: "VidSrc.su",
+    movie: (id) => `https://vidsrc.su/movie/${id}?autoplay=true&colour=E50914`,
+    tv: (id, s, e) => `https://vidsrc.su/tv/${id}/${s}/${e}?autoplay=true&colour=E50914`,
+  },
+  {
+    id: "server28",
+    label: "VidGod",
+    movie: (id) => `https://vidgod.net/movie/${id}`,
+    tv: (id, s, e) => `https://vidgod.net/tv/${id}/${s}/${e}`,
+  },
+  {
+    id: "server29",
+    label: "VidSrc.me",
+    movie: (id) => `https://vidsrc.me/embed/movie?tmdb=${id}`,
+    tv: (id, s, e) => `https://vidsrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+  },
+  {
+    id: "server30",
+    label: "1Embed",
+    movie: (id) => `https://1embed.cc/embed/movie/${id}`,
+    tv: (id, s, e) => `https://1embed.cc/embed/tv/${id}/${s}/${e}`,
+  },
 ];
 
 function getMirrorIndexById(mirrorId) {
@@ -1045,7 +1201,7 @@ trailerModal.addEventListener("click", (e) => {
 });
 
 /* ============================== PLAYER (Netflix-inspired, full screen) ==============================
-   Uses the same STREAM_MIRRORS as the legacy player (Server 1-4 = VidLink, VidSrc, 2Embed, MultiEmbed).
+   Uses the same STREAM_MIRRORS as the legacy player (Server 1-30).
    Sandbox results (headless Chrome, 2026-11-12, sandbox="allow-scripts allow-same-origin
    allow-presentation allow-forms", then adding allow-modals / allow-popups / allow-popups-to-escape-sandbox /
    allow-top-navigation(-by-user-activation), then every token at once):
@@ -1062,7 +1218,38 @@ trailerModal.addEventListener("click", (e) => {
    A server the user picks is remembered. While the player is open a beforeunload guard makes the browser
    ask before any frame can navigate this tab away. */
 const PLAYER_SANDBOX = "allow-scripts allow-same-origin allow-presentation allow-forms";
-const MIRROR_SANDBOX = { server1: null, server2: null, server3: null, server4: null }; // see results above
+const MIRROR_SANDBOX = {
+  server1: null,
+  server2: null,
+  server3: null,
+  server4: null,
+  server5: null,
+  server6: null,
+  server7: null,
+  server8: null,
+  server9: null,
+  server10: null,
+  server11: null,
+  server12: null,
+  server13: null,
+  server14: null,
+  server15: null,
+  server16: null,
+  server17: null,
+  server18: null,
+  server19: null,
+  server20: null,
+  server21: null,
+  server22: null,
+  server23: null,
+  server24: null,
+  server25: null,
+  server26: null,
+  server27: null,
+  server28: null,
+  server29: null,
+  server30: null,
+};
 const PLAYER_SERVERS = STREAM_MIRRORS.map((m, i) => ({
   ...m,
   name: `Server ${i + 1}`,
