@@ -4038,3 +4038,7 @@ html, body { max-width: 100%; overflow-x: hidden; }
   .hdr-install { width: 44px; min-width: 44px; padding: 0; }
   .hdr-install-label { display: none; }
 }
+
+/* Full-width phone shell */
+html, body, #app, #site-footer { width: 100%; max-width: 100%; overflow-x: hidden; }
+.hero { width: 100%; max-width: 100%; }
