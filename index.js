@@ -88,8 +88,8 @@ const STREAM_MIRRORS = [
   {
     id: "server10",
     label: "VidSrc Embed",
-    movie: (id) => `https://vidsrc-embed.ru/embed/movie/${id}`,
-    tv: (id, s, e) => `https://vidsrc-embed.ru/embed/tv/${id}-${s}-${e}`,
+    movie: (id, s, e, imdbId) => `https://vidsrc-embed.ru/embed/movie/${imdbId || id}`,
+    tv: (id, s, e, imdbId) => `https://vidsrc-embed.ru/embed/tv/${imdbId || id}-${s}-${e}`,
   },
   {
     id: "server11",
@@ -118,8 +118,8 @@ const STREAM_MIRRORS = [
   {
     id: "server15",
     label: "PrimeSrc",
-    movie: (id) => `https://primesrc.me/embed/movie?tmdb=${id}`,
-    tv: (id, s, e) => `https://primesrc.me/embed/tv?tmdb=${id}&season=${s}&episode=${e}`,
+    movie: (id, s, e, imdbId) => `https://primesrc.me/embed/movie?imdb=${imdbId || id}`,
+    tv: (id, s, e, imdbId) => `https://primesrc.me/embed/tv?imdb=${imdbId || id}&season=${s}&episode=${e}`,
   },
   {
     id: "server16",
@@ -222,11 +222,11 @@ function getActiveMirror() {
   return STREAM_MIRRORS[activeMirrorIndex] || STREAM_MIRRORS[0];
 }
 
-function buildStreamUrl(mirror, mediaType, mediaId, season, episode) {
+function buildStreamUrl(mirror, mediaType, mediaId, season, episode, imdbId) {
   if (!mirror || !mediaId) return "#";
   return mediaType === "movie"
-    ? mirror.movie(mediaId)
-    : mirror.tv(mediaId, season, episode);
+    ? mirror.movie(mediaId, season, episode, imdbId)
+    : mirror.tv(mediaId, season, episode, imdbId);
 }
 
 // Unified Cross-Media Mapping Table for Popular Genres
@@ -584,6 +584,15 @@ async function fetchTvDetails(id) {
     return await tmdb(`/tv/${id}`);
   } catch {
     return null;
+  }
+}
+
+async function fetchExternalIds(type, id) {
+  try {
+    const data = await tmdb(`/${type}/${id}/external_ids`);
+    return data && data.imdb_id ? data.imdb_id : "";
+  } catch {
+    return "";
   }
 }
 
@@ -1321,7 +1330,7 @@ function plHeading() {
 function loadSource() {
   if (!plState) return;
   const srv = PLAYER_SERVERS[plState.server];
-  const url = buildStreamUrl(srv, plState.type, plState.id, plState.season, plState.episode);
+  const url = buildStreamUrl(srv, plState.type, plState.id, plState.season, plState.episode, plState.imdbId);
   // A fresh iframe per source: sandbox flags only apply on creation/navigation, and it drops mirror history.
   const f = document.createElement("iframe");
   f.className = "pl-frame";
@@ -1409,7 +1418,7 @@ async function openPlayer({ type, id, title, season, episode }, trigger) {
   closeTrailer();
   closeDrawers({ restoreFocus: false });
   plReturnFocus = trigger || document.activeElement;
-  plState = { type, id: String(id), title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
+  plState = { type, id: String(id), imdbId: "", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
   const known = itemIndex.get(`${type}:${id}`) || itemIndex.get(`${type}:${Number(id)}`);
   if (known) {
     plState.title = plState.title || titleOf(known);
@@ -1452,6 +1461,8 @@ async function openPlayer({ type, id, title, season, episode }, trigger) {
     plState.episodes = await loadSeason(plState.season);
     if (!plState || plState.id !== String(id)) return;
   }
+  plState.imdbId = await fetchExternalIds(type, id);
+  if (!plState || plState.id !== String(id)) return;
   loadSource();
 }
 
