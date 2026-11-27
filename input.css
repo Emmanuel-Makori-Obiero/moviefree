@@ -705,7 +705,10 @@
   @media (max-width: 767px) { .hero-dots { bottom: calc(4px + env(safe-area-inset-bottom)); } }
   .hero-copy { left: max(var(--gutter), env(safe-area-inset-left)); right: max(var(--gutter), env(safe-area-inset-right)); }
   .ft { padding-bottom: calc(22px + env(safe-area-inset-bottom)); padding-left: max(var(--gutter), env(safe-area-inset-left)); padding-right: max(var(--gutter), env(safe-area-inset-right)); }
-  .pl-top { padding-left: max(var(--gutter), env(safe-area-inset-left)); padding-right: max(var(--gutter), env(safe-area-inset-right)); }
+  .pl-top {
+    padding-left: max(calc(var(--gutter) + 128px), calc(env(safe-area-inset-left) + 128px));
+    padding-right: max(var(--gutter), env(safe-area-inset-right));
+  }
 
   /* iPad / tablet: compact primary nav instead of the hamburger-only header. */
   @media (min-width: 768px) and (max-width: 1100px) {
@@ -843,4 +846,258 @@ html, body, #app, #site-footer { width: 100%; max-width: 100%; overflow-x: hidde
   .hdr-icon, .hdr-install { width: 40px; min-width: 40px; height: 40px; min-height: 40px; padding: 0; }
   .hdr-install-label { display: none; }
   .hero { width: 100%; max-width: 100%; }
+}
+
+/* Live station names (was an inline style). */
+.station-name {
+  position: relative; z-index: 1; font-size: clamp(24px, 3vw, 42px); padding: 20px;
+  text-align: center; text-shadow: 0 2px 16px #000; color: #fff;
+}
+.pl-live-fallback { margin-top: 8px; font-size: 12px; }
+
+/* The title used to start under the Back button because a later padding rule dropped the indent. */
+.pl-top { padding-left: max(calc(var(--gutter) + 132px), calc(env(safe-area-inset-left) + 132px)); }
+@media (max-width: 767px) {
+  .pl-top { padding-left: max(124px, calc(env(safe-area-inset-left) + 112px)); }
+}
+
+/* Laptop widths were clipping the right side of the header (Download App). Tighten the bar, keep every control. */
+@media (min-width: 1101px) and (max-width: 1500px) {
+  .top-search { width: min(250px, 22vw); margin-right: 14px; }
+  .hdr-links { gap: 16px; margin-right: 12px; }
+  .hdr-icons { gap: 0; }
+}
+
+/* Keyboard focus is visible on light and dark surfaces. It does not change the resting layout. */
+:focus-visible { outline: 3px solid #000; outline-offset: 3px; }
+a:focus-visible, button:focus-visible, select:focus-visible, .pill:focus-visible {
+  box-shadow: 0 0 0 3px #fff, 0 0 0 6px #000;
+}
+.hdr--light :focus-visible, .hero :focus-visible, .on-dark :focus-visible, .pl :focus-visible, .tm :focus-visible {
+  outline-color: #fff;
+  box-shadow: 0 0 0 3px #000, 0 0 0 7px #fff;
+}
+
+/* ------------------------------------------------------------------
+   Television and other large displays.
+   Phone and laptop layouts (under 1600px) stay on the rules above.
+   1080p body text is at least 24px. Edges keep about a 5% safe area.
+------------------------------------------------------------------- */
+@media (min-width: 1600px) {
+  :root {
+    --gutter: 5vw;
+    --hdr-pad: 5vw;
+    --hdr-h: 168px;
+    --page-gap-y: clamp(160px, 9vh, 240px);
+    --card-gap: 10px;
+  }
+  body { font-size: 20px; line-height: 1.35; }
+  .hero { max-height: none; height: 100svh; --hero-pad-b: calc(5vh + env(safe-area-inset-bottom)); --dots-h: 72px; }
+  .hero-shade { background: linear-gradient(180deg, rgba(0,0,0,.62) 0%, rgba(0,0,0,.18) 32%, rgba(0,0,0,.28) 58%, rgba(0,0,0,.78) 100%); }
+  .hero-title, .hero-tagline, .hero .chip, .card-bigtitle, .card-chip { text-shadow: 0 2px 18px rgba(0,0,0,.8); }
+  .hero .chip, .card-chip { background: rgba(0,0,0,.55); }
+  .hero-tagline { font-size: 22px; max-width: 40rem; opacity: 1; }
+  .chip, .card-chip { font-size: 16px; padding: 6px 8px; }
+  .card-media::after { background: linear-gradient(180deg, rgba(0,0,0,.55), transparent 40%); }
+  .card--hero .card-media::after { background: linear-gradient(180deg, rgba(0,0,0,.5), transparent 26%, transparent 46%, rgba(0,0,0,.75)); }
+  .hdr-mark { width: 56px; height: 56px; }
+  .hdr-word { font-size: 14px; }
+  .hdr-link { font-size: 28px; }
+  .hdr-icon, .hdr-icon svg { width: 40px; height: 40px; }
+  .hdr-install-label { font-size: 13px; }
+  .top-search { height: 56px; width: min(560px, 28vw); }
+  .top-search input { font-size: 20px; }
+  .top-search svg { width: 22px; height: 22px; }
+  .sec-title { font-size: clamp(64px, 4vw, 92px); }
+  .sec-link { font-size: 16px; }
+  .card-t { font-size: 22px; }
+  .card-t .rt { font-size: 16px; }
+  .card-t-sub { font-size: 18px; color: #333; }
+  .card--portrait { --w: 240px; }
+  .card--station { --w: 300px; }
+  .card--station .card-t { font-size: 20px; }
+  .station-name { font-size: 32px; }
+  .card-watch { opacity: 1; transform: none; width: 56px; height: 56px; }
+  .card-watch svg { width: 16px; height: 18px; }
+  .tv-ep-play span { opacity: 1; }
+  .pl-ep-play { opacity: 1; }
+  .row { padding-top: 18px; padding-bottom: 28px; }
+  .row > .card, .grid4 > .card { transition: transform 160ms var(--ease-out); }
+  .row > .card:focus-within, .grid4 > .card:focus-within, .sr-cover:focus-visible, .sr-land:focus-visible {
+    transform: scale(1.045); z-index: 3;
+  }
+  .card, .tv-ep, .sec-head { scroll-margin-top: calc(var(--hdr-h) + 28px); scroll-margin-inline: 36px; }
+  a:focus-visible, button:focus-visible, select:focus-visible { outline-width: 4px; outline-offset: 5px; }
+  .cta-watch, .cta-line, .btn-line, .btn-black { height: 60px; padding: 0 26px; font-size: 18px; }
+  .cta-watch svg, .btn-line svg { width: 16px; height: 18px; }
+  .cta-save { width: 60px; height: 60px; }
+  .arrow-btn { width: 60px; height: 60px; }
+  .arrow-btn svg { width: 16px; height: 16px; }
+  .dt-poster { width: min(100%, 380px); }
+  .dt-h { font-size: 16px; }
+  .dt-syn { font-size: 26px; max-width: 38ch; }
+  .dt-k { font-size: 15px; }
+  .dt-v { font-size: 22px; }
+  .tv-ep { grid-template-columns: minmax(260px, 320px) 1fr; gap: 24px; padding: 20px 0; }
+  .tv-ep h3 { font-size: 26px; }
+  .tv-ep p { font-size: 20px; }
+  .pill { height: 48px; padding: 0 16px; font-size: 16px; }
+  .pg-title { font-size: clamp(96px, 8vw, 220px); }
+  .filterbar, .filterpanel { width: min(720px, calc(100vw - 2 * var(--gutter))); }
+  .filterbar { height: 60px; font-size: 18px; }
+  .ft { padding-bottom: calc(5vh + env(safe-area-inset-bottom)); }
+  .ft-h { font-size: 16px; }
+  .ft-box ul { font-size: 20px; }
+  .ft-tmdb p, .ft-legal { font-size: 18px; }
+  .ft-tmdb-mark { font-size: 64px; }
+  .nl { height: clamp(420px, 36vh, 640px); }
+  .nl-form input { font-size: clamp(32px, 2.2vw, 52px); }
+  .drawer { width: min(820px, 46vw); }
+  .menu-h { font-size: 36px; }
+  .menu-link { font-size: 16px; padding: 10px 0; }
+  .dd { width: 340px; }
+  .dd-title { font-size: 28px; }
+  .dd-link { font-size: 13px; }
+  .dd-item span { font-size: 16px; }
+  .sr-cover-t, .sr-pagetitle { font-size: 22px; }
+  .sr-cover-m, .sr-post-p { font-size: 20px; }
+  .sr-post-h { font-size: 28px; }
+  .sr-post { max-width: 70rem; }
+  .card--station a { font-size: 16px; }
+  .pl-back { top: 5vh; left: 5vw; min-height: 60px; padding: 0 20px; }
+  .pl-back span, .pl-tool span { font-size: 16px; }
+  .pl-top { padding-top: 5vh; padding-left: max(calc(5vw + 180px), calc(env(safe-area-inset-left) + 180px)); padding-right: 5vw; }
+  .pl-title { font-size: 42px; }
+  .pl-sub { font-size: 20px; }
+  .pl-bottom { bottom: 6vh; padding-left: 5vw; padding-right: 5vw; }
+  .pl-server-toggle, .pl-next { min-height: 60px; font-size: 16px; }
+  .pl-chip { height: 48px; font-size: 16px; padding: 0 16px; }
+  .pl-note, .pl-loading, .pl-live-fallback { font-size: 18px; }
+  .pl-eps { width: min(640px, 40vw); }
+  .pl-eps-head h3 { font-size: 36px; }
+  .pl-ep button { grid-template-columns: 28px 200px 1fr; min-height: 72px; }
+  .pl-ep-t { font-size: 20px; }
+  .pl-ep-o { font-size: 16px; }
+  .pl-tool svg, .pl-back svg { width: 26px; height: 26px; }
+  .tm-frame { width: min(1600px, 84vw); }
+  .tm-title { font-size: 18px; }
+}
+
+@media (min-width: 1920px) {
+  :root { --hdr-h: 188px; --page-gap-y: clamp(180px, 10vh, 280px); }
+  body { font-size: 24px; }
+  .hdr-link { font-size: 32px; }
+  .hdr-icon, .hdr-icon svg { width: 44px; height: 44px; }
+  .top-search { height: 60px; }
+  .top-search input { font-size: 22px; }
+  .hero-tagline { font-size: 24px; }
+  .chip, .card-chip { font-size: 18px; }
+  .sec-title { font-size: clamp(80px, 4.4vw, 120px); }
+  .sec-link { font-size: 18px; }
+  .card-t { font-size: 24px; }
+  .card-t-sub { font-size: 24px; }
+  .card--portrait { --w: 280px; }
+  .card--station { --w: 340px; }
+  .card--station .card-t { font-size: 24px; }
+  .card--station .card-t-sub { font-size: 20px; }
+  .cta-watch, .cta-line, .btn-line, .btn-black { height: 68px; font-size: 20px; }
+  .cta-save { width: 68px; height: 68px; }
+  .dt-poster { width: min(100%, 460px); }
+  .dt-syn { font-size: 28px; }
+  .dt-v { font-size: 24px; }
+  .tv-ep { grid-template-columns: minmax(300px, 380px) 1fr; }
+  .tv-ep h3 { font-size: 30px; }
+  .tv-ep p { font-size: 24px; }
+  .pill { height: 56px; font-size: 18px; }
+  .ft-box ul { font-size: 22px; }
+  .pl-title { font-size: 52px; }
+  .pl-sub, .pl-note, .pl-live-fallback { font-size: 24px; }
+  .pl-server-toggle, .pl-next, .pl-back span, .pl-tool span { font-size: 18px; }
+  .menu-link { font-size: 18px; }
+  .sr-post-p, .sr-cover-m { font-size: 22px; }
+}
+
+@media (min-width: 2560px) {
+  :root { --hdr-h: 230px; --page-gap-y: clamp(200px, 8vh, 320px); }
+  body { font-size: 32px; }
+  .hdr-mark { width: 72px; height: 72px; }
+  .hdr-word { font-size: 18px; }
+  .hdr-link { font-size: 42px; }
+  .hdr-icon, .hdr-icon svg { width: 56px; height: 56px; }
+  .hdr-install-label { font-size: 16px; }
+  .top-search { height: 76px; width: min(760px, 26vw); }
+  .top-search input { font-size: 28px; }
+  .hero-title { font-size: clamp(120px, 6vw, 280px); }
+  .hero-title.ht-l { font-size: clamp(96px, 4.6vw, 210px); }
+  .hero-title.ht-xl { font-size: clamp(80px, 3.6vw, 160px); }
+  .hero-title.ht-xxl { font-size: clamp(64px, 2.8vw, 120px); }
+  .hero-tagline { font-size: 32px; }
+  .chip, .card-chip { font-size: 22px; }
+  .sec-title { font-size: clamp(110px, 4vw, 170px); }
+  .card-t { font-size: 32px; }
+  .card-t-sub { font-size: 26px; }
+  .card--portrait { --w: 360px; }
+  .card--station { --w: 440px; }
+  .card--station .card-t { font-size: 32px; }
+  .card--station .card-t-sub { font-size: 26px; }
+  .card--station a { font-size: 22px; }
+  .station-name { font-size: 42px; }
+  .cta-watch, .cta-line, .btn-line, .btn-black { height: 84px; font-size: 26px; padding: 0 32px; }
+  .cta-save { width: 84px; height: 84px; }
+  .dt-poster { width: min(100%, 620px); }
+  .dt-syn { font-size: 36px; }
+  .dt-k { font-size: 20px; }
+  .dt-v { font-size: 32px; }
+  .tv-ep { grid-template-columns: minmax(380px, 500px) 1fr; gap: 36px; }
+  .tv-ep h3 { font-size: 40px; }
+  .tv-ep p { font-size: 28px; }
+  .pill { height: 68px; font-size: 24px; }
+  .grid4 { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+  .ft-box ul { font-size: 28px; }
+  .ft-legal, .ft-tmdb p { font-size: 22px; }
+  .pl-title { font-size: 72px; }
+  .pl-sub, .pl-note, .pl-live-fallback { font-size: 28px; }
+  .pl-back, .pl-server-toggle, .pl-next { min-height: 80px; }
+  .pl-back span, .pl-tool span, .pl-server-toggle, .pl-next, .pl-chip { font-size: 24px; }
+  .pl-chip { height: 64px; }
+  .pl-eps { width: min(860px, 38vw); }
+  .pl-ep button { grid-template-columns: 36px 280px 1fr; }
+  .pl-ep-t { font-size: 26px; }
+  .pl-ep-o { font-size: 22px; }
+  .drawer { width: min(1080px, 42vw); }
+  .menu-h { font-size: 52px; }
+  .menu-link { font-size: 24px; }
+  .tm-frame { width: min(2200px, 80vw); }
+}
+
+@media (min-width: 3400px) {
+  :root { --hdr-h: calc(160px + 6vh); }
+  body { font-size: 44px; }
+  .hdr-link { font-size: 52px; }
+  .hdr-icon, .hdr-icon svg { width: 68px; height: 68px; }
+  .top-search { height: 92px; }
+  .top-search input { font-size: 36px; }
+  .hero-title { font-size: clamp(160px, 5.5vw, 380px); }
+  .hero-tagline { font-size: 40px; }
+  .sec-title { font-size: clamp(140px, 3.8vw, 220px); }
+  .card-t { font-size: 44px; }
+  .card-t-sub { font-size: 34px; }
+  .card--portrait { --w: 480px; }
+  .card--station { --w: 560px; }
+  .card--station .card-t { font-size: 40px; }
+  .card--station .card-t-sub { font-size: 32px; }
+  .card--station a { font-size: 28px; }
+  .cta-watch, .cta-line, .btn-line, .btn-black { height: 104px; font-size: 32px; }
+  .cta-save { width: 104px; height: 104px; }
+  .dt-syn { font-size: 44px; }
+  .dt-v { font-size: 40px; }
+  .dt-poster { width: min(100%, 760px); }
+  .tv-ep h3 { font-size: 48px; }
+  .tv-ep p { font-size: 36px; }
+  .grid4 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .ft-box ul { font-size: 36px; }
+  .pl-title { font-size: 96px; }
+  .pl-sub, .pl-note, .pl-live-fallback { font-size: 36px; }
+  .pl-chip { height: 80px; font-size: 30px; }
+  .pl-back span, .pl-tool span, .pl-server-toggle, .pl-next { font-size: 30px; }
 }

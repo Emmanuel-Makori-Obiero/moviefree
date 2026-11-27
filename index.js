@@ -754,6 +754,13 @@ function stillSrc(item, big) {
   return PLACEHOLDER;
 }
 
+// Phones keep the small TMDB files via sizes=; 4K and retina displays can pick original.
+function tmdbSrcset(path, entries, sizes) {
+  if (!path) return "";
+  const list = entries.map(([size, w]) => `${img(size, path)} ${w}w`).join(", ");
+  return `srcset="${list}" sizes="${sizes}"`;
+}
+
 function cardHTML(item, opts = {}) {
   remember([item]);
   const title = titleOf(item);
@@ -761,8 +768,9 @@ function cardHTML(item, opts = {}) {
   const size = opts.size || "";
   const big = size === "xl" || size === "hero";
   const src = stillSrc(item, big);
+  const cardSizes = size === "hero" ? "(max-width: 767px) 90vw, 89vw" : size === "xl" ? "(max-width: 767px) 86vw, 48vw" : "(max-width: 767px) 78vw, 30vw";
   const srcset = item.backdrop_path
-    ? `srcset="${img("w780", item.backdrop_path)} 780w, ${img("w1280", item.backdrop_path)} 1280w" sizes="${size === "hero" ? "90vw" : size === "xl" ? "48vw" : "30vw"}"`
+    ? tmdbSrcset(item.backdrop_path, [["w780", 780], ["w1280", 1280], ["original", 3840]], cardSizes)
     : "";
   const rating = opts.rating && item.vote_average ? `<span class="rt" aria-label="TMDB score">${item.vote_average.toFixed(1)}</span>` : "";
   const sub = opts.sub ? `<div class="card-t-sub">${esc(opts.sub(item))}</div>` : "";
@@ -791,7 +799,7 @@ function cardHTML(item, opts = {}) {
 }
 // Phones get w780 (Lighthouse mobile ~412px @1.75x); big screens w1280 / original.
 function heroSrcset(path) {
-  return `${img("w780", path)} 780w, ${img("w1280", path)} 1280w, ${img("original", path)} 1920w`;
+  return `${img("w780", path)} 780w, ${img("w1280", path)} 1280w, ${img("original", path)} 3840w`;
 }
 let heroPreload = null;
 function preloadHero(path) {
@@ -825,10 +833,13 @@ function watchAttrs(item, extra = "") {
 }
 
 function portraitHTML(person, sub) {
+  const shot = person.profile_path
+    ? tmdbSrcset(person.profile_path, [["w185", 185], ["w342", 342], ["h632", 632], ["original", 1000]], "(max-width: 767px) 42vw, (min-width: 2560px) 360px, (min-width: 1920px) 280px, 168px")
+    : "";
   return `
     <div class="card card--portrait">
       <a href="?person=${person.id}" data-link class="block">
-        <div class="card-media"><img src="${person.profile_path ? img("w342", person.profile_path) : PLACEHOLDER}" alt="" loading="lazy" decoding="async" /></div>
+        <div class="card-media"><img src="${person.profile_path ? img("w342", person.profile_path) : PLACEHOLDER}" ${shot} alt="" loading="lazy" decoding="async" /></div>
         <div class="card-t">${esc(person.name)}</div>
         ${sub ? `<div class="card-t-sub">${esc(sub)}</div>` : ""}
       </a>
@@ -1503,7 +1514,7 @@ function renderEpisodeList(season, eps) {
       <li class="pl-ep" data-e="${ep.episode_number}" aria-current="${season === plState.season && ep.episode_number === plState.episode}">
         <button type="button" data-action="pl-ep" data-s="${season}" data-e="${ep.episode_number}">
           <span class="pl-ep-n">${ep.episode_number}</span>
-          <span class="pl-ep-img"><img src="${ep.still_path ? img("w300", ep.still_path) : PLACEHOLDER}" alt="" loading="lazy" /><span class="pl-ep-play" aria-hidden="true">${ICON.playXs}</span></span>
+          <span class="pl-ep-img"><img src="${ep.still_path ? img("w300", ep.still_path) : PLACEHOLDER}" ${ep.still_path ? tmdbSrcset(ep.still_path, [["w300", 300], ["original", 1280]], "(min-width: 1600px) 280px, 128px") : ""} alt="" loading="lazy" /><span class="pl-ep-play" aria-hidden="true">${ICON.playXs}</span></span>
           <span class="pl-ep-txt">
             <span class="pl-ep-t"><strong>${esc(ep.name || "Episode " + ep.episode_number)}</strong>${ep.runtime ? `<em>${esc(ep.runtime)}m</em>` : ""}</span>
             <span class="pl-ep-o">${esc(truncate(ep.overview || "", 150))}</span>
@@ -1653,8 +1664,8 @@ function wakeChrome() {
   clearTimeout(plIdleTimer);
   plIdleTimer = setTimeout(() => {
     const ae = document.activeElement;
-    const keyboardInChrome = ae && ae.closest && ae.closest(".pl-chrome") && ae.matches(":focus-visible");
-    if (!plState || !plEps.hidden || player.querySelector(".pl-chrome:hover") || keyboardInChrome) return wakeChrome();
+    const keyboardInPlayer = ae && ae !== player && player.contains(ae);
+    if (!plState || !plEps.hidden || player.querySelector(".pl-chrome:hover, .pl-back:hover") || keyboardInPlayer) return wakeChrome();
     player.classList.add("is-idle");
   }, CHROME_IDLE_MS);
 }
@@ -1815,7 +1826,7 @@ async function viewHome(route, token) {
 
     <section class="sec" aria-label="Newsletter">
       <div class="nl">
-        ${nlStill ? `<img src="${img("w1280", nlStill)}" alt="" loading="lazy" />` : ""}
+        ${nlStill ? `<img src="${img("w1280", nlStill)}" ${tmdbSrcset(nlStill, [["w780", 780], ["w1280", 1280], ["original", 3840]], "100vw")} alt="" loading="lazy" />` : ""}
         <div class="nl-in">
           <div class="nl-word display"><span class="ol">MovieFree</span>Newsletter</div>
           <div>
@@ -1844,8 +1855,11 @@ function setupHero(items) {
   hero.addEventListener("focusin", () => (heroState.focus = true));
   hero.addEventListener("focusout", () => (heroState.focus = false));
   hero.addEventListener("keydown", (e) => {
-    if (e.key === "ArrowRight") showHero(heroState.i + 1, true);
-    if (e.key === "ArrowLeft") showHero(heroState.i - 1, true);
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    if (!e.target.closest(".hero-dot")) return;
+    e.preventDefault();
+    e.stopPropagation();
+    showHero(heroState.i + (e.key === "ArrowRight" ? 1 : -1), true);
   });
   startHeroTimer();
 }
@@ -1985,7 +1999,7 @@ async function viewDetail(route, token) {
 
     <section class="sec">
       <div class="dt-grid">
-        <div><img class="dt-poster" src="${d.poster_path ? img("w500", d.poster_path) : PLACEHOLDER}" alt="${esc(title)} poster" /></div>
+        <div><img class="dt-poster" src="${d.poster_path ? img("w500", d.poster_path) : PLACEHOLDER}" ${d.poster_path ? tmdbSrcset(d.poster_path, [["w342", 342], ["w500", 500], ["w780", 780], ["original", 2000]], "(min-width: 2560px) 640px, (min-width: 1920px) 460px, (max-width: 900px) 60vw, 240px") : ""} alt="${esc(title)} poster" /></div>
         <div>
           <h2 class="dt-h">Synopsis</h2>
           <p class="dt-syn">${esc(d.overview || "No synopsis available yet.")}</p>
@@ -2038,7 +2052,7 @@ async function loadEpisodes(tvId, seasonNum, token = routeToken) {
       (ep) => `
       <article class="tv-ep">
         <button type="button" class="tv-ep-play" data-action="watch" data-type="tv" data-id="${esc(tvId)}" data-season="${esc(seasonNum)}" data-episode="${esc(ep.episode_number)}" aria-label="Play episode ${esc(ep.episode_number)}: ${esc(ep.name || "")}">
-          <img src="${ep.still_path ? img("w300", ep.still_path) : PLACEHOLDER}" alt="" loading="lazy" /><span aria-hidden="true">${ICON.watch}</span>
+          <img src="${ep.still_path ? img("w300", ep.still_path) : PLACEHOLDER}" ${ep.still_path ? tmdbSrcset(ep.still_path, [["w300", 300], ["original", 1280]], "(max-width: 640px) 120px, (min-width: 2560px) 480px, (min-width: 1920px) 360px, 200px") : ""} alt="" loading="lazy" /><span aria-hidden="true">${ICON.watch}</span>
         </button>
         <div>
           <div class="dt-k">S${esc(seasonNum)} · E${esc(ep.episode_number)}${ep.air_date ? " — " + esc(fmtDate(ep.air_date)) : ""}${ep.runtime ? " · " + esc(ep.runtime) + " min" : ""}</div>
@@ -2076,7 +2090,7 @@ async function viewPerson(route, token) {
     </div>
     <section class="sec" style="padding-top:clamp(56px,7vw,110px)">
       <div class="dt-grid">
-        <div><img class="dt-poster" src="${d.profile_path ? img("h632", d.profile_path) : PLACEHOLDER}" alt="${esc(d.name)}" /></div>
+        <div><img class="dt-poster" src="${d.profile_path ? img("h632", d.profile_path) : PLACEHOLDER}" ${d.profile_path ? tmdbSrcset(d.profile_path, [["w342", 342], ["h632", 632], ["original", 2000]], "(min-width: 2560px) 640px, (min-width: 1920px) 460px, (max-width: 900px) 60vw, 240px") : ""} alt="${esc(d.name)}" /></div>
         <div><h2 class="dt-h">Biography</h2><p class="dt-syn" style="font-size:16px;line-height:1.4">${esc(truncate(d.biography || "No biography available.", 1100))}</p></div>
         <div><h2 class="dt-h">Additional Details</h2>${facts.map(([k, v]) => `<div class="dt-k">${esc(k)}</div><div class="dt-v">${esc(v)}</div>`).join("")}</div>
       </div>
@@ -2121,16 +2135,17 @@ function coverHTML(it, q) {
   const path = t === "person" ? it.profile_path : it.poster_path;
   const meta = t === "person" ? it.known_for_department || "" : [yearOf(it), firstGenre(it)].filter(Boolean).join(", ");
   return `<a class="sr-cover" href="${hrefOf(it)}" data-link>
-      <img src="${path ? img("w342", path) : PLACEHOLDER}" alt="" loading="lazy" decoding="async" />
+      <img src="${path ? img("w342", path) : PLACEHOLDER}" ${path ? tmdbSrcset(path, [["w185", 185], ["w342", 342], ["w500", 500], ["original", 1000]], "(max-width: 640px) 46vw, (min-width: 1920px) 18vw, 14vw") : ""} alt="" loading="lazy" decoding="async" />
       <div class="sr-cover-t">${esc(titleOf(it))}</div>
       ${meta ? `<div class="sr-cover-m">${esc(meta)}</div>` : ""}
     </a>`;
 }
 
 function landHTML(it, q) {
-  const src = it.backdrop_path ? img("w780", it.backdrop_path) : it.poster_path ? img("w780", it.poster_path) : PLACEHOLDER;
+  const path = it.backdrop_path || it.poster_path;
+  const src = path ? img("w780", path) : PLACEHOLDER;
   return `<a class="sr-land" href="${hrefOf(it)}" data-link>
-      <img src="${src}" alt="" loading="lazy" decoding="async" />
+      <img src="${src}" ${path ? tmdbSrcset(path, [["w780", 780], ["w1280", 1280], ["original", 3840]], "(max-width: 640px) 46vw, 20vw") : ""} alt="" loading="lazy" decoding="async" />
       <div class="sr-cover-t">${esc(titleOf(it))}</div>
       ${yearOf(it) ? `<div class="sr-cover-m">${esc(yearOf(it))}</div>` : ""}
     </a>`;
@@ -2261,7 +2276,7 @@ function liveChannelCardHTML(channel) {
         ${channel.image ? `<img src="${esc(channel.image)}" alt="${esc(channel.name)} official channel" loading="lazy" referrerpolicy="no-referrer" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.82" onerror="this.hidden=true" />` : ""}
         <span style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.12),rgba(0,0,0,.7))"></span>
         <span class="card-chip" style="position:relative;z-index:1">LIVE</span>
-        <span class="display" style="position:relative;z-index:1;font-size:clamp(24px,3vw,42px);padding:20px;text-align:center;text-shadow:0 2px 16px #000">${esc(channel.name)}</span>
+        <span class="station-name display">${esc(channel.name)}</span>
       </div>
       <div class="card-t">${esc(channel.name)}</div>
       <div class="card-t-sub">${esc(channel.source)}</div>
@@ -2594,6 +2609,101 @@ document.addEventListener("submit", (e) => {
   e.preventDefault();
   const note = $("[data-nl-note]");
   if (note) note.textContent = "The MOVIEFREE newsletter is coming soon. Nothing was sent.";
+});
+
+/* D-pad / arrow keys move between real controls. Enter and Space still activate buttons and links. */
+function spatialNavScope() {
+  if (plState) return player;
+  if (activeDrawer) return activeDrawer;
+  if (trailerModal && !trailerModal.classList.contains("hidden")) return trailerModal;
+  if (videoModal && !videoModal.classList.contains("hidden")) return videoModal;
+  if (openDD && openDD.el) return openDD.el;
+  return document;
+}
+
+function isSpatialTarget(el) {
+  if (!el || el.tabIndex < 0 || el.disabled) return false;
+  if (el.closest("[hidden], [inert], [aria-hidden='true']")) return false;
+  if (el.classList.contains("sr-only")) return false;
+  const style = getComputedStyle(el);
+  if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) return false;
+  const box = el.getBoundingClientRect();
+  return box.width >= 4 && box.height >= 4;
+}
+
+function spatialItems(scope) {
+  const root = scope === document ? document : scope;
+  return $$('a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled])', root).filter(isSpatialTarget);
+}
+
+function spatialCenter(el) {
+  const box = el.getBoundingClientRect();
+  return { x: box.left + box.width / 2, y: box.top + box.height / 2 };
+}
+
+function pickSpatial(current, items, dir) {
+  const from = spatialCenter(current);
+  let best = null;
+  let bestScore = Infinity;
+  items.forEach((el) => {
+    if (el === current) return;
+    const to = spatialCenter(el);
+    const dx = to.x - from.x;
+    const dy = to.y - from.y;
+    let primary = 0;
+    let secondary = 0;
+    if (dir === "right") { primary = dx; secondary = Math.abs(dy); }
+    else if (dir === "left") { primary = -dx; secondary = Math.abs(dy); }
+    else if (dir === "down") { primary = dy; secondary = Math.abs(dx); }
+    else { primary = -dy; secondary = Math.abs(dx); }
+    if (primary < 8) return;
+    const horizontal = dir === "left" || dir === "right";
+    if (horizontal && secondary > primary * 0.9 + 40) return;
+    if (!horizontal && secondary > primary * 4 + 160) return;
+    const score = primary + secondary * (horizontal ? 3 : 0.45);
+    if (score < bestScore) {
+      bestScore = score;
+      best = el;
+    }
+  });
+  return best;
+}
+
+function focusSpatial(el) {
+  el.focus({ preventScroll: true });
+  const card = el.closest(".card, .tv-ep, .pl-ep") || el;
+  card.scrollIntoView({ block: "nearest", inline: "nearest", behavior: reduceMotion.matches ? "auto" : "smooth" });
+}
+
+function isTypingField(el) {
+  if (!el || !el.closest) return false;
+  const tag = el.tagName;
+  if (tag === "TEXTAREA" || tag === "SELECT") return true;
+  if (tag === "INPUT" && el.type !== "button" && el.type !== "submit" && el.type !== "checkbox" && el.type !== "radio") return true;
+  return el.isContentEditable;
+}
+
+document.addEventListener("keydown", (e) => {
+  const dir = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "up", ArrowDown: "down" }[e.key];
+  if (!dir || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey) return;
+  if (isTypingField(e.target) && (dir === "left" || dir === "right")) return;
+  if (e.target.closest && e.target.closest(".hero-dot") && (dir === "left" || dir === "right")) return;
+  const scope = spatialNavScope();
+  const items = spatialItems(scope);
+  if (!items.length) return;
+  const current = document.activeElement;
+  const inside = current && items.includes(current);
+  if (!inside) {
+    if (dir === "down" || dir === "right") {
+      e.preventDefault();
+      focusSpatial(items[0]);
+    }
+    return;
+  }
+  const next = pickSpatial(current, items, dir);
+  if (!next) return;
+  e.preventDefault();
+  focusSpatial(next);
 });
 
 document.addEventListener("keydown", (e) => {
