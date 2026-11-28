@@ -772,7 +772,7 @@ function cardHTML(item, opts = {}) {
   const srcset = item.backdrop_path
     ? tmdbSrcset(item.backdrop_path, [["w780", 780], ["w1280", 1280], ["original", 3840]], cardSizes)
     : "";
-  const rating = opts.rating && item.vote_average ? `<span class="rt" aria-label="TMDB score">${item.vote_average.toFixed(1)}</span>` : "";
+  const rating = opts.rating && item.vote_average ? `<span class="rt" aria-label="Score">${item.vote_average.toFixed(1)}</span>` : "";
   const sub = opts.sub ? `<div class="card-t-sub">${esc(opts.sub(item))}</div>` : "";
   const bigTitle = size === "hero" ? `<div class="card-bigtitle display">${esc(title)}</div>` : "";
   const play =
@@ -992,8 +992,7 @@ function dropdownHTML(kind) {
     return `<div class="dd-title">My MovieFree</div>
       <a class="dd-link" role="menuitem" href="?browse=watchlist" data-link>Watchlist</a>
       <a class="dd-link" role="menuitem" href="?browse=recent" data-link>Recently Viewed</a>
-      <a class="dd-link" role="menuitem" href="?browse=all" data-link>Browse by Genre</a>
-      <a class="dd-link" role="menuitem" href="https://www.themoviedb.org/" target="_blank" rel="noopener">Data from TMDB</a>`;
+      <a class="dd-link" role="menuitem" href="?browse=all" data-link>Browse by Genre</a>`;
   }
   const list = getWatchlist();
   const items = list
@@ -1970,7 +1969,7 @@ async function viewDetail(route, token) {
     ["Genres", esc((d.genres || []).map((g) => g.name).join(", "))],
     [type === "movie" ? "Release date" : "First aired", esc(fmtDate(released))],
     ["Rated", esc(cert)],
-    ["TMDB score", d.vote_average ? esc(`${d.vote_average.toFixed(1)} / 10 · ${(d.vote_count || 0).toLocaleString()} votes`) : ""],
+    ["Score", d.vote_average ? esc(`${d.vote_average.toFixed(1)} / 10 · ${(d.vote_count || 0).toLocaleString()} votes`) : ""],
     ["Original title", originalTitle && originalTitle !== title ? esc(originalTitle) : ""],
   ].filter((r) => r[1]);
   const trailerAttrs = `data-action="trailer" data-type="${type}" data-id="${d.id}" data-title="${esc(title)}"`;
