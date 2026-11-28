@@ -4324,3 +4324,13 @@ a:focus-visible, button:focus-visible, select:focus-visible, .pill:focus-visible
   .pl-chip { height: 80px; font-size: 30px; }
   .pl-back span, .pl-tool span, .pl-server-toggle, .pl-next { font-size: 30px; }
 }
+@media (min-width: 768px) and (max-width: 1100px) {
+  .hdr-links { display: none; }
+}
+/* Laptop widths keep the useful actions while placing browse links in Menu. */
+@media (min-width: 1101px) and (max-width: 1699px) {
+  .hdr { box-sizing: border-box; width: 100%; padding-left: clamp(20px, 3vw, 48px); padding-right: clamp(20px, 3vw, 48px); }
+  .hdr-links { display: none; }
+  .top-search { width: min(360px, 30vw); margin-right: 18px; }
+  .hdr-icons { gap: 8px; margin-right: 0; }
+}
