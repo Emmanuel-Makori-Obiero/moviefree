@@ -1238,7 +1238,38 @@ if (topSearchForm && topSearchInput) {
     }, 180);
   });
   topSearchInput.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") topSuggestSuggestions([]);
+    if (e.key === "Escape") {
+      topSuggestSuggestions([]);
+      return;
+    }
+    if ((e.key === "ArrowDown" || e.key === "ArrowUp") && !topSearchSuggestions.hidden) {
+      const options = $$(".top-suggestion", topSearchSuggestions);
+      if (!options.length) return;
+      e.preventDefault();
+      e.stopPropagation();
+      (e.key === "ArrowDown" ? options[0] : options[options.length - 1]).focus();
+    }
+  });
+  topSearchSuggestions.addEventListener("keydown", (e) => {
+    const options = $$(".top-suggestion", topSearchSuggestions);
+    const current = e.target.closest(".top-suggestion");
+    const index = options.indexOf(current);
+    if (index < 0) return;
+    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+      e.preventDefault();
+      e.stopPropagation();
+      const delta = e.key === "ArrowDown" ? 1 : -1;
+      options[Math.max(0, Math.min(options.length - 1, index + delta))].focus();
+    } else if (["Enter", "NumpadEnter", " ", "Spacebar", "OK", "Select"].includes(e.key)) {
+      e.preventDefault();
+      e.stopPropagation();
+      navigate(current.getAttribute("href"));
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      e.stopPropagation();
+      topSuggestSuggestions([]);
+      topSearchInput.focus();
+    }
   });
   document.addEventListener("click", (e) => {
     if (!topSearchForm.contains(e.target)) topSuggestSuggestions([]);
