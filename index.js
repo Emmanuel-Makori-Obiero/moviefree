@@ -1471,7 +1471,7 @@ function loadSource() {
   clearTimeout(plSlowTimer);
   plSlowTimer = setTimeout(() => {
     player.classList.add("is-slow");
-    $("#pl-loading-text").textContent = srv ? `${srv.name} is slow. Try another channel.` : "The official live broadcast is unavailable. Use a link below to watch it directly.";
+    $("#pl-loading-text").textContent = srv ? `${srv.name} is slow. Try another server.` : "The official live broadcast is unavailable. Use a link below to watch it directly.";
   }, LOAD_SLOW_MS);
   plHeading();
   syncLiveFallback();
