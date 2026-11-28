@@ -1,4 +1,4 @@
-const CACHE_NAME = "moviefree-shell-v4-laptop-tv-nav";
+const CACHE_NAME = "moviefree-shell-v5-live-provider-label";
 const SHELL = [
   "./",
   "./index.html",

@@ -1419,7 +1419,7 @@ function plHeading() {
   $("#pl-title").textContent = plState.title;
   const sub = $("#pl-sub");
   if (plState.type === "live") {
-    sub.textContent = "Live TV · Official YouTube stream";
+    sub.textContent = `Live TV · ${plState.sourceLabel || "Official stream"}`;
   } else if (plState.type === "tv") {
     const ep = plState.episodes.find((e) => e.episode_number === plState.episode);
     sub.textContent = `S${plState.season}:E${plState.episode}${ep && ep.name ? ` “${ep.name}”` : ""}`;
@@ -1538,17 +1538,17 @@ async function goEpisode(season, episode) {
 function openLiveChannel(channel, trigger) {
   if (!channel) return;
   openPlayer(
-    { type: "live", id: channel.id, title: channel.name, liveUrl: channel.embedUrl || liveChannelUrl(channel), fallbackUrl: channel.fallbackUrl, youtubeUrl: liveChannelPageUrl(channel) },
+    { type: "live", id: channel.id, title: channel.name, sourceLabel: channel.source, liveUrl: channel.embedUrl || liveChannelUrl(channel), fallbackUrl: channel.fallbackUrl, youtubeUrl: liveChannelPageUrl(channel) },
     trigger,
   );
 }
 
-async function openPlayer({ type, id, title, season, episode, liveUrl, fallbackUrl, youtubeUrl }, trigger) {
+async function openPlayer({ type, id, title, season, episode, liveUrl, fallbackUrl, youtubeUrl, sourceLabel }, trigger) {
   if (!id) return;
   closeTrailer();
   closeDrawers({ restoreFocus: false });
   plReturnFocus = trigger || document.activeElement;
-  plState = { type, id: String(id), imdbId: "", liveUrl: liveUrl || "", fallbackUrl: fallbackUrl || "", youtubeUrl: youtubeUrl || "", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
+  plState = { type, id: String(id), imdbId: "", liveUrl: liveUrl || "", fallbackUrl: fallbackUrl || "", youtubeUrl: youtubeUrl || "", sourceLabel: sourceLabel || "Official stream", title: title || "", year: "", server: serverIndex(), season: 1, episode: 1, episodes: [], seasons: [] };
   const known = itemIndex.get(`${type}:${id}`) || itemIndex.get(`${type}:${Number(id)}`);
   if (known) {
     plState.title = plState.title || titleOf(known);
